@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Add User{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">➕ Add New User</h1>
+
+<form method="POST" class="card p-4 shadow-sm">
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="text" name="username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Role</label>
+        <select name="role" class="form-select" required>
+            <option value="viewer">Viewer</option>
+            <option value="inspector">Inspector</option>
+            <option value="manager">Manager</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Stakeholder</label>
+        <select name="stakeholder_id" class="form-select">
+            <option value="">-- No Stakeholder --</option>
+            {% for stakeholder in stakeholders %}
+                <option value="{{ stakeholder.id }}">{{ stakeholder.name }} ({{ stakeholder.role }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Create User</button>
+    <a href="{{ url_for('admin.list_users') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

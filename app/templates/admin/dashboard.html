@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">🛠️ Admin Dashboard</h1>
+
+<div class="list-group">
+    <a href="{{ url_for('admin.list_users') }}" class="list-group-item list-group-item-action">
+        👥 Manage Users
+    </a>
+    <a href="{{ url_for('admin.list_stakeholders') }}" class="list-group-item list-group-item-action">
+        🏢 Manage Stakeholders
+    </a>
+    <a href="{{ url_for('admin.list_itps') }}" class="list-group-item list-group-item-action">
+        📋 View ITP List
+    </a>
+    <a href="{{ url_for('main.index') }}" class="list-group-item list-group-item-action">
+        🏠 Back to RFI List
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}RFI List{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">📋 All RFIs</h1>
+<a href="/add" class="btn btn-success mb-3">+ Submit New RFI</a>
+
+{% for rfi in rfis %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ rfi.title }} <small class="text-muted">— {{ rfi.location }}</small></h5>
+        <p class="card-text">{{ rfi.description }}</p>
+        <p class="card-text">
+            <small class="text-muted">Submitted by {{ rfi.submitted_by }} on {{ rfi.date_created.strftime('%Y-%m-%d %H:%M') }}</small>
+        </p>
+        <a href="{{ url_for('main.edit_rfi', id=rfi.id) }}" class="btn btn-primary btn-sm">Edit</a>
+        <a href="{{ url_for('main.delete_rfi', id=rfi.id) }}" class="btn btn-danger btn-sm">Delete</a>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Add New ITP Phase</h2>
+
+<form method="POST" action="{{ url_for('admin.add_itp_phase', itp_id=itp.id) }}">
+  <div class="form-group">
+    <label for="phase_code">Phase Code (optional)</label>
+    <input type="text" class="form-control" id="phase_code" name="phase_code" placeholder="Enter phase code">
+  </div>
+
+  <div class="form-group">
+    <label for="activity_name">Activity Name *</label>
+    <input type="text" class="form-control" id="activity_name" name="activity_name" required>
+  </div>
+
+  <div class="form-group">
+    <label for="verifying_document">Verifying Document (optional)</label>
+    <input type="text" class="form-control" id="verifying_document" name="verifying_document" placeholder="Enter verifying document (if any)">
+  </div>
+
+  <div class="form-group">
+    <label>Intervention Types</label>
+    <div class="row">
+      <div class="col-md-2">
+        <label for="employer">Employer</label>
+        <select class="form-control" id="employer" name="employer">
+          <option value="">None</option>
+          <option value="H">H</option>
+          <option value="W">W</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="engineer">Engineer</label>
+        <select class="form-control" id="engineer" name="engineer">
+          <option value="">None</option>
+          <option value="H">H</option>
+          <option value="W">W</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="contractor">Contractor</label>
+        <select class="form-control" id="contractor" name="contractor">
+          <option value="">None</option>
+          <option value="H">H</option>
+          <option value="W">W</option>
+          <option value="FI">FI</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="subcontractor">Subcontractor</label>
+        <select class="form-control" id="subcontractor" name="subcontractor">
+          <option value="">None</option>
+          <option value="H">H</option>
+          <option value="W">W</option>
+          <option value="FI">FI</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="third_party">Third Party</label>
+        <select class="form-control" id="third_party" name="third_party">
+          <option value="">None</option>
+          <option value="H">H</option>
+          <option value="W">W</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Add Phase</button>
+  <a href="{{ url_for('admin.list_itp_phases', itp_id=itp.id) }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

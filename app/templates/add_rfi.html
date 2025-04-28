@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Add RFI{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">📌 Submit New RFI</h1>
+<form method="POST" class="card p-4 shadow-sm">
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="3" required></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Location</label>
+        <input type="text" name="location" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Submitted By</label>
+        <input type="text" name="submitted_by" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-success">Submit</button>
+    <a href="/" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

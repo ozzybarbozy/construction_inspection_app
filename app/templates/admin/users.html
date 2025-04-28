@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">👥 Manage Users</h1>
+
+<a href="{{ url_for('admin.add_user') }}" class="btn btn-success mb-3">➕ Add New User</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Password</th>
+            <th>Stakeholder</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+                {% if user.username != 'admin' %}
+                <div class="d-flex align-items-center">
+                    <input type="password" class="form-control form-control-sm password-field" style="max-width: 150px;" value="Hidden" readonly data-password="{{ user.plaintext_password }}">
+                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2 toggle-password">👁️</button>
+                </div>
+                {% else %}
+                <span class="text-muted">Protected</span>
+                {% endif %}
+            </td>
+            <td>{{ user.stakeholder.name if user.stakeholder else '-' }}</td>
+            <td>
+                {% if user.username != 'admin' %}
+                <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">
+                    Delete
+                </a>
+                {% else %}
+                <span class="text-muted">Protected</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-secondary mt-3">⬅️ Back to Admin Dashboard</a>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-password').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var input = this.previousElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                input.value = input.getAttribute('data-password');
+            } else {
+                input.type = 'password';
+                input.value = "Hidden";
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

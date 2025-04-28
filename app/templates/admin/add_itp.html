@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Add New ITP</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="itp_number" class="form-label">ITP Number *</label>
+            <input type="text" class="form-control" id="itp_number" name="itp_number" required>
+        </div>
+        <div class="mb-3">
+            <label for="activity_name" class="form-label">Activity Name *</label>
+            <input type="text" class="form-control" id="activity_name" name="activity_name" required>
+        </div>
+        <div class="mb-3">
+            <label for="revision_number" class="form-label">Revision Number *</label>
+            <input type="text" class="form-control" id="revision_number" name="revision_number" required>
+        </div>
+        <div class="mb-3">
+            <label for="revision_date" class="form-label">Revision Date *</label>
+            <input type="date" class="form-control" id="revision_date" name="revision_date" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create ITP</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Edit RFI{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">✏️ Edit RFI</h1>
+<form method="POST" class="card p-4 shadow-sm">
+    <div class="mb-3">
+        <label class="form-label">Title</label>
+        <input type="text" name="title" class="form-control" value="{{ rfi.title }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" rows="3" required>{{ rfi.description }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Location</label>
+        <input type="text" name="location" class="form-control" value="{{ rfi.location }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Submitted By</label>
+        <input type="text" name="submitted_by" class="form-control" value="{{ rfi.submitted_by }}" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a href="/" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit ITP Phase</h2>
+    <hr>
+
+    <form method="POST">
+        <div class="form-group">
+            <label for="phase_code">Phase Code (optional)</label>
+            <input type="text" class="form-control" id="phase_code" name="phase_code" value="{{ phase.phase_code or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="activity_name">Activity Name *</label>
+            <input type="text" class="form-control" id="activity_name" name="activity_name" value="{{ phase.activity_name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="verifying_document">Verifying Document (optional)</label>
+            <input type="text" class="form-control" id="verifying_document" name="verifying_document" value="{{ phase.verifying_document or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="employer">Employer (optional)</label>
+            <input type="text" class="form-control" id="employer" name="employer" value="{{ phase.employer or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="engineer">Engineer (optional)</label>
+            <input type="text" class="form-control" id="engineer" name="engineer" value="{{ phase.engineer or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="contractor">Contractor (optional)</label>
+            <input type="text" class="form-control" id="contractor" name="contractor" value="{{ phase.contractor or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="subcontractor">Subcontractor (optional)</label>
+            <input type="text" class="form-control" id="subcontractor" name="subcontractor" value="{{ phase.subcontractor or '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="third_party">Third Party (optional)</label>
+            <input type="text" class="form-control" id="third_party" name="third_party" value="{{ phase.third_party or '' }}">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('admin.list_itp_phases', itp_id=phase.itp_id) }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

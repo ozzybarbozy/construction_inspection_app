@@ -22,7 +22,7 @@
                 <i class="fas fa-lock-open"></i> Show Open Only
             </button>
         </div>
-        {% if current_user.role_obj and current_user.role_obj.name in ['Admin', 'Contractor'] %}
+        {% if current_user.role_obj and current_user.role_obj.name == 'Admin' or current_user.stakeholder and current_user.stakeholder.role == 'Contractor' %}
         <a href="{{ url_for('main.add_rfi') }}" class="btn btn-outline-success">
             <i class="fas fa-plus"></i> Submit New RFI
         </a>
@@ -345,6 +345,9 @@
     }
     .table th {
         white-space: nowrap;
+    }
+    .rounded-circle {
+        flex-shrink: 0;
     }
 </style>
 

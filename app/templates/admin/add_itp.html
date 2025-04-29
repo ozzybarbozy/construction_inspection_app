@@ -1,25 +1,83 @@
 {% extends "base.html" %}
+
+{% block title %}Add ITP{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>Add New ITP</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Add New ITP
+                    </h4>
+                </div>
+                <div class="card-body">
     <form method="POST">
         <div class="mb-3">
-            <label for="itp_number" class="form-label">ITP Number *</label>
+                            <label for="itp_number" class="form-label">
+                                <i class="fas fa-hashtag me-1"></i>ITP Number
+                            </label>
             <input type="text" class="form-control" id="itp_number" name="itp_number" required>
         </div>
+                        
         <div class="mb-3">
-            <label for="activity_name" class="form-label">Activity Name *</label>
-            <input type="text" class="form-control" id="activity_name" name="activity_name" required>
+                            <label for="description" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Description
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
         </div>
+
         <div class="mb-3">
-            <label for="revision_number" class="form-label">Revision Number *</label>
+            <label for="discipline_code" class="form-label">
+                <i class="fas fa-drafting-compass me-1"></i>Discipline
+            </label>
+            <select class="form-select" id="discipline_code" name="discipline_code" required>
+                <option value="">-- Select Discipline --</option>
+                {% for discipline in disciplines %}
+                    <option value="{{ discipline.code }}">{{ discipline.name }} ({{ discipline.code }})</option>
+                {% endfor %}
+            </select>
+        </div>
+                        
+        <div class="mb-3">
+                            <label for="revision_number" class="form-label">
+                                <i class="fas fa-code-branch me-1"></i>Revision Number
+                            </label>
             <input type="text" class="form-control" id="revision_number" name="revision_number" required>
         </div>
+                        
         <div class="mb-3">
-            <label for="revision_date" class="form-label">Revision Date *</label>
+                            <label for="revision_date" class="form-label">
+                                <i class="fas fa-calendar me-1"></i>Revision Date
+                            </label>
             <input type="date" class="form-control" id="revision_date" name="revision_date" required>
         </div>
-        <button type="submit" class="btn btn-primary">Create ITP</button>
+                        
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('admin.list_itps') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to ITPs
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Save ITP
+            </button>
+        </div>
     </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .btn-outline-primary:hover,
+    .btn-outline-info:hover,
+    .btn-outline-success:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-secondary:hover {
+        color: white;
+    }
+</style>
 {% endblock %}

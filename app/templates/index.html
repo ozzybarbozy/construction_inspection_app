@@ -3,20 +3,432 @@
 {% block title %}RFI List{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">📋 All RFIs</h1>
-<a href="/add" class="btn btn-success mb-3">+ Submit New RFI</a>
-
-{% for rfi in rfis %}
-<div class="card mb-3">
-    <div class="card-body">
-        <h5 class="card-title">{{ rfi.title }} <small class="text-muted">— {{ rfi.location }}</small></h5>
-        <p class="card-text">{{ rfi.description }}</p>
-        <p class="card-text">
-            <small class="text-muted">Submitted by {{ rfi.submitted_by }} on {{ rfi.date_created.strftime('%Y-%m-%d %H:%M') }}</small>
-        </p>
-        <a href="{{ url_for('main.edit_rfi', id=rfi.id) }}" class="btn btn-primary btn-sm">Edit</a>
-        <a href="{{ url_for('main.delete_rfi', id=rfi.id) }}" class="btn btn-danger btn-sm">Delete</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>📋 All RFIs</h1>
+    <div class="d-flex gap-2">
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-secondary" id="cardViewBtn">
+                <i class="fas fa-th-large"></i> Card View
+            </button>
+            <button type="button" class="btn btn-outline-secondary" id="listViewBtn">
+                <i class="fas fa-list"></i> List View
+            </button>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" id="filterAssignedBtn">
+                <i class="fas fa-filter"></i> Assigned to Me
+            </button>
+            <button type="button" class="btn btn-outline-primary" id="filterOpenBtn">
+                <i class="fas fa-lock-open"></i> Show Open Only
+            </button>
+        </div>
+        {% if current_user.role_obj and current_user.role_obj.name in ['Admin', 'Contractor'] %}
+        <a href="{{ url_for('main.add_rfi') }}" class="btn btn-outline-success">
+            <i class="fas fa-plus"></i> Submit New RFI
+        </a>
+        {% endif %}
     </div>
 </div>
-{% endfor %}
+
+<!-- Overall Summary Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">📊 Overall RFI Summary</h5>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-clipboard-list text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Total RFIs</h6>
+                        <h3 class="mb-0">{{ rfis|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Open RFIs</h6>
+                        <h3 class="mb-0">{{ rfis|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-check text-success"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Accepted</h6>
+                        <h3 class="mb-0">{{ rfis|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-danger bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-times text-danger"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Rejected</h6>
+                        <h3 class="mb-0">{{ rfis|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Your Summary Card -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">📊 Your RFI Summary</h5>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-clipboard-list text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Total Assigned</h6>
+                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-clock text-warning"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Open RFIs</h6>
+                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-check text-success"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Accepted</h6>
+                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-danger bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                        <i class="fas fa-times text-danger"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">Rejected</h6>
+                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card View -->
+<div id="cardView">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for rfi in rfis %}
+        <div class="col">
+            <div class="card h-100 shadow-sm" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-primary" style="font-size: 1.1rem;">{{ rfi.rfi_number }}</div>
+                    </div>
+                    <div>
+                        <span class="badge bg-{{ 'success' if rfi.status == 'Accepted' else 'danger' if rfi.status == 'Rejected' else 'warning' if rfi.status == 'In Progress' else 'secondary' if rfi.status == 'Cancelled' else 'info' }}">
+                            {{ rfi.status or 'Open' }}
+                        </span>
+                        <span class="badge bg-{{ 'danger' if rfi.priority == 'Urgent' else 'warning' if rfi.priority == 'High' else 'info' if rfi.priority == 'Low' else 'secondary' }}">
+                            {{ rfi.priority or 'Normal' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <p class="card-text text-truncate">{{ rfi.description }}</p>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>Location:</strong> {{ rfi.location }}</p>
+                        {% if rfi.itp %}
+                        <p class="mb-1"><strong>ITP:</strong> {{ rfi.itp.itp_number }} - {{ rfi.itp.activity_name }}</p>
+                        {% endif %}
+                        {% if rfi.itp_phase %}
+                        <p class="mb-1"><strong>Phase:</strong> {{ rfi.itp_phase.phase_code or '' }} - {{ rfi.itp_phase.activity_name }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="mb-1"><strong>Inspection Date:</strong> {{ rfi.inspection_date.strftime('%Y-%m-%d') if rfi.inspection_date else 'Not set' }}</p>
+                        <p class="mb-1"><strong>Inspection Time:</strong> {{ rfi.inspection_time.strftime('%H:%M') if rfi.inspection_time else 'Not set' }}</p>
+                        <p class="mb-1">
+                            <strong>Assigned To:</strong>
+                            {% if rfi.assigned_to %}
+                                <div class="d-flex align-items-center">
+                                    {% if rfi.assigned_to.photo %}
+                                        <img src="{{ url_for('static', filename='uploads/photos/' + rfi.assigned_to.photo) }}" 
+                                             alt="{{ rfi.assigned_to.name }} photo" 
+                                             class="rounded-circle me-2" 
+                                             style="width: 30px; height: 30px; object-fit: cover;"
+                                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                    {% else %}
+                                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+                                             style="width: 30px; height: 30px; background: #f8f9fa;">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span>{{ rfi.assigned_to.name or 'No Name' }} {{ rfi.assigned_to.surname or '' }}</span>
+                                </div>
+                            {% else %}
+                                Not assigned
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Submitted by {{ rfi.submitted_by }} on {{ rfi.date_created.strftime('%Y-%m-%d %H:%M') }}</small>
+                        <div class="d-flex gap-2">
+                            {% if rfi.can_be_accepted_rejected_by(current_user) %}
+                                <form action="{{ url_for('main.accept_rfi', id=rfi.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('main.reject_rfi', id=rfi.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </form>
+                            {% endif %}
+                            {% if not rfi.is_closed() %}
+                                <a href="{{ url_for('main.edit_rfi', id=rfi.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="{{ url_for('main.delete_rfi', id=rfi.id) }}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Delete
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+
+<!-- List View -->
+<div id="listView" style="display: none;">
+    <div class="table-responsive">
+        <table class="table table-hover" id="rfiTable">
+            <thead class="table-light">
+                <tr>
+                    <th>RFI Number</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Building</th>
+                    <th>Discipline</th>
+                    <th>Inspection Date</th>
+                    <th>Inspection Time</th>
+                    <th>Assigned To</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rfi in rfis|sort(attribute='inspection_date', reverse=false)|sort(attribute='inspection_time', reverse=false) %}
+                <tr class="rfi-row" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}">
+                    <td class="fw-bold text-primary">{{ rfi.rfi_number }}</td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if rfi.status == 'Accepted' else 'danger' if rfi.status == 'Rejected' else 'warning' if rfi.status == 'In Progress' else 'secondary' if rfi.status == 'Cancelled' else 'info' }}">
+                            {{ rfi.status or 'Open' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ 'danger' if rfi.priority == 'Urgent' else 'warning' if rfi.priority == 'High' else 'info' if rfi.priority == 'Low' else 'secondary' }}">
+                            {{ rfi.priority or 'Normal' }}
+                        </span>
+                    </td>
+                    <td>{{ rfi.building_code }}</td>
+                    <td>{{ rfi.discipline_code }}</td>
+                    <td>{{ rfi.inspection_date.strftime('%Y-%m-%d') if rfi.inspection_date else 'Not set' }}</td>
+                    <td>{{ rfi.inspection_time.strftime('%H:%M') if rfi.inspection_time else 'Not set' }}</td>
+                    <td>
+                        {% if rfi.assigned_to %}
+                            <div class="d-flex align-items-center">
+                                {% if rfi.assigned_to.photo %}
+                                    <img src="{{ url_for('static', filename='uploads/photos/' + rfi.assigned_to.photo) }}" 
+                                         alt="{{ rfi.assigned_to.name }} photo" 
+                                         class="rounded-circle me-2" 
+                                         style="width: 30px; height: 30px; object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                {% else %}
+                                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+                                         style="width: 30px; height: 30px; background: #f8f9fa;">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <span>{{ rfi.assigned_to.name or 'No Name' }} {{ rfi.assigned_to.surname or '' }}</span>
+                            </div>
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            {% if rfi.can_be_accepted_rejected_by(current_user) %}
+                                <form action="{{ url_for('main.accept_rfi', id=rfi.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('main.reject_rfi', id=rfi.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            {% endif %}
+                            {% if not rfi.is_closed() %}
+                                <a href="{{ url_for('main.edit_rfi', id=rfi.id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('main.delete_rfi', id=rfi.id) }}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .gap-2 {
+        gap: 0.5rem;
+    }
+    .btn-outline-primary:hover,
+    .btn-outline-info:hover,
+    .btn-outline-success:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-secondary:hover {
+        color: white;
+    }
+    .card {
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+    }
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+    .table th {
+        white-space: nowrap;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cardViewBtn = document.getElementById('cardViewBtn');
+    const listViewBtn = document.getElementById('listViewBtn');
+    const filterAssignedBtn = document.getElementById('filterAssignedBtn');
+    const filterOpenBtn = document.getElementById('filterOpenBtn');
+    const cardView = document.getElementById('cardView');
+    const listView = document.getElementById('listView');
+    const rfiRows = document.querySelectorAll('.rfi-row');
+    const rfiCards = document.querySelectorAll('.col');
+    let showAssignedOnly = false;
+    let showOpenOnly = false;
+    
+    // Set initial active button
+    cardViewBtn.classList.add('active');
+    
+    // Toggle views
+    cardViewBtn.addEventListener('click', function() {
+        cardView.style.display = 'block';
+        listView.style.display = 'none';
+        cardViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+        applyFilter();
+    });
+    
+    listViewBtn.addEventListener('click', function() {
+        cardView.style.display = 'none';
+        listView.style.display = 'block';
+        listViewBtn.classList.add('active');
+        cardViewBtn.classList.remove('active');
+        applyFilter();
+    });
+
+    // Toggle assigned filter
+    filterAssignedBtn.addEventListener('click', function() {
+        showAssignedOnly = !showAssignedOnly;
+        filterAssignedBtn.classList.toggle('active', showAssignedOnly);
+        applyFilter();
+    });
+
+    // Toggle open/closed filter
+    filterOpenBtn.addEventListener('click', function() {
+        showOpenOnly = !showOpenOnly;
+        filterOpenBtn.classList.toggle('active', showOpenOnly);
+        applyFilter();
+    });
+
+    // Function to apply all filters
+    function applyFilter() {
+        const currentUserId = '{{ current_user.id }}';
+        
+        rfiRows.forEach(row => {
+            const assignedTo = row.getAttribute('data-assigned-to');
+            const status = row.getAttribute('data-status');
+            let shouldShow = true;
+
+            if (showAssignedOnly && assignedTo !== currentUserId) {
+                shouldShow = false;
+            }
+            if (showOpenOnly && status !== 'Open') {
+                shouldShow = false;
+            }
+
+            row.style.display = shouldShow ? '' : 'none';
+        });
+        
+        rfiCards.forEach(card => {
+            const assignedTo = card.querySelector('.card').getAttribute('data-assigned-to');
+            const status = card.querySelector('.card').getAttribute('data-status');
+            let shouldShow = true;
+
+            if (showAssignedOnly && assignedTo !== currentUserId) {
+                shouldShow = false;
+            }
+            if (showOpenOnly && status !== 'Open') {
+                shouldShow = false;
+            }
+
+            card.style.display = shouldShow ? '' : 'none';
+        });
+    }
+});
+</script>
 {% endblock %}

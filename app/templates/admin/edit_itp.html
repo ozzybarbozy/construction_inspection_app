@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Edit ITP{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">📝 Edit ITP</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">ITP Number</label>
+                            <input type="text" name="itp_number" class="form-control" value="{{ itp.itp_number }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3" required>{{ itp.description }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Discipline</label>
+                            <select name="discipline_code" class="form-select" required>
+                                <option value="">-- Select Discipline --</option>
+                                {% for discipline in disciplines %}
+                                    <option value="{{ discipline.code }}" {% if discipline.code == itp.discipline_code %}selected{% endif %}>
+                                        {{ discipline.name }} ({{ discipline.code }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Revision Number</label>
+                            <input type="text" name="revision_number" class="form-control" value="{{ itp.revision_number }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Revision Date</label>
+                            <input type="date" name="revision_date" class="form-control" value="{{ itp.revision_date.strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.list_itps') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="fas fa-save"></i> Update ITP
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-outline-primary:hover,
+    .btn-outline-info:hover,
+    .btn-outline-success:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-secondary:hover {
+        color: white;
+    }
+</style>
+{% endblock %} 

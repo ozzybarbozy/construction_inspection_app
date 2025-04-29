@@ -3,20 +3,166 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">🛠️ Admin Dashboard</h1>
+<div class="container">
+    <h1 class="text-center mb-5">Admin Dashboard</h1>
 
-<div class="list-group">
-    <a href="{{ url_for('admin.list_users') }}" class="list-group-item list-group-item-action">
-        👥 Manage Users
-    </a>
-    <a href="{{ url_for('admin.list_stakeholders') }}" class="list-group-item list-group-item-action">
-        🏢 Manage Stakeholders
-    </a>
-    <a href="{{ url_for('admin.list_itps') }}" class="list-group-item list-group-item-action">
-        📋 View ITP List
-    </a>
-    <a href="{{ url_for('main.index') }}" class="list-group-item list-group-item-action">
-        🏠 Back to RFI List
-    </a>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <!-- Users Management Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-users fa-3x text-primary"></i>
+                    </div>
+                    <h5 class="card-title">Manage Users</h5>
+                    <p class="card-text text-muted">Add, edit, and manage system users</p>
+                    <a href="{{ url_for('admin.list_users') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-right me-2"></i>Access
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Management Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-user-shield fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="card-title">Role Management</h5>
+                    <p class="card-text text-muted">Manage user roles and permissions</p>
+                    <a href="{{ url_for('admin.manage_roles') }}" class="btn btn-outline-warning">
+                        <i class="fas fa-arrow-right me-2"></i>Access
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stakeholders Management Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-building fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title">Manage Stakeholders</h5>
+                    <p class="card-text text-muted">Manage project stakeholders and contacts</p>
+                    <a href="{{ url_for('admin.list_stakeholders') }}" class="btn btn-outline-success">
+                        <i class="fas fa-arrow-right me-2"></i>Access
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ITP Management Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-list-check fa-3x text-info"></i>
+                    </div>
+                    <h5 class="card-title">ITP Management</h5>
+                    <p class="card-text text-muted">View and manage ITP lists</p>
+                    <a href="{{ url_for('admin.list_itps') }}" class="btn btn-outline-info">
+                        <i class="fas fa-arrow-right me-2"></i>Access
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drawing Management Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-drafting-compass fa-3x text-danger"></i>
+                    </div>
+                    <h5 class="card-title">Drawing Management</h5>
+                    <p class="card-text text-muted">Manage drawing numbers and revisions</p>
+                    <a href="{{ url_for('main.drawings') }}" class="btn btn-outline-danger">
+                        <i class="fas fa-arrow-right me-2"></i>Access
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- RFI Time Settings Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-clock fa-3x text-info"></i>
+                    </div>
+                    <h5 class="card-title">RFI Time Settings</h5>
+                    <p class="card-text text-muted">Configure RFI submission time limitations</p>
+                    <a href="{{ url_for('admin.rfi_settings') }}" class="btn btn-outline-info">
+                        <i class="fas fa-arrow-right me-2"></i>Access
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to RFI List Card -->
+        <div class="col">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center">
+                    <div class="icon-wrapper mb-3">
+                        <i class="fas fa-clipboard-list fa-3x text-secondary"></i>
+                    </div>
+                    <h5 class="card-title">RFI List</h5>
+                    <p class="card-text text-muted">Return to the main RFI list</p>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-right me-2"></i>Access
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-radius: 50%;
+    }
+    
+    .card-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-text {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+        border-radius: 20px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .btn:hover {
+        transform: translateX(5px);
+    }
+</style>
 {% endblock %}

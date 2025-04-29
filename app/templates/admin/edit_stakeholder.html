@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Stakeholder{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">
+                        <i class="fas fa-building-edit me-2"></i>
+                        Edit Stakeholder: {{ stakeholder.name }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                <i class="fas fa-building me-1"></i>Name
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ stakeholder.name }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="role" class="form-label">
+                                <i class="fas fa-user-tag me-1"></i>Role
+                            </label>
+                            <input type="text" class="form-control" id="role" name="role" 
+                                   value="{{ stakeholder.role }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="logo" class="form-label">
+                                <i class="fas fa-image me-1"></i>Company Logo
+                            </label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                {% if stakeholder.logo %}
+                                <img src="{{ url_for('static', filename='uploads/logos/' + stakeholder.logo) }}" 
+                                     alt="{{ stakeholder.name }} logo" 
+                                     class="img-thumbnail" 
+                                     style="max-width: 100px; max-height: 100px;">
+                                {% else %}
+                                <div class="text-center" style="width: 100px; height: 100px; background: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-building text-muted fa-2x"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                            <small class="form-text text-muted">
+                                Upload a square logo image (recommended size: 200x200 pixels)
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.list_stakeholders') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Stakeholders
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .img-thumbnail {
+        object-fit: contain;
+    }
+</style>
+{% endblock %} 

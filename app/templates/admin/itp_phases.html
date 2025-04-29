@@ -5,40 +5,68 @@
     <h2>Manage ITP Phases</h2>
     <hr>
 
-    <a href="{{ url_for('admin.add_itp_phase', itp_id=itp.id) }}" class="btn btn-primary mb-3">Add New ITP Phase</a>
+    <a href="{{ url_for('admin.add_itp_phase', itp_id=itp.id) }}" class="btn btn-outline-primary mb-3">
+        <i class="fas fa-plus"></i> Add New ITP Phase
+    </a>
 
+    <div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr>
                 <th>Phase Code</th>
-                <th>Activity Name</th>
+                    <th>Activity Name</th>
                 <th>Verifying Document</th>
-                <th>Employer</th>
-                <th>Engineer</th>
-                <th>Contractor</th>
-                <th>Subcontractor</th>
-                <th>Third Party</th>
+                    <th>Employer</th>
+                    <th>Engineer</th>
+                    <th>Contractor</th>
+                    <th>Subcontractor</th>
+                    <th>Third Party</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for phase in phases %}
             <tr>
-                <td>{{ phase.phase_code or '-' }}</td>
-                <td>{{ phase.activity_name }}</td>
+                    <td>{{ phase.phase_code or '-' }}</td>
+                    <td>{{ phase.activity_name }}</td>
                 <td>{{ phase.verifying_document or '-' }}</td>
-                <td>{{ phase.employer or '-' }}</td>
-                <td>{{ phase.engineer or '-' }}</td>
-                <td>{{ phase.contractor or '-' }}</td>
-                <td>{{ phase.subcontractor or '-' }}</td>
-                <td>{{ phase.third_party or '-' }}</td>
+                    <td>{{ phase.employer or '-' }}</td>
+                    <td>{{ phase.engineer or '-' }}</td>
+                    <td>{{ phase.contractor or '-' }}</td>
+                    <td>{{ phase.subcontractor or '-' }}</td>
+                    <td>{{ phase.third_party or '-' }}</td>
                 <td>
-                    <a href="{{ url_for('admin.edit_itp_phase', phase_id=phase.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <a href="{{ url_for('admin.delete_itp_phase', phase_id=phase.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this phase?');">Delete</a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('admin.edit_itp_phase', phase_id=phase.id) }}" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('admin.delete_itp_phase', phase_id=phase.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this phase?');">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+</div>
+
+<style>
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .gap-2 {
+        gap: 0.5rem;
+    }
+    .btn-outline-primary:hover,
+    .btn-outline-info:hover,
+    .btn-outline-success:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-warning:hover,
+    .btn-outline-secondary:hover {
+        color: white;
+    }
+</style>
 {% endblock %}

@@ -3,25 +3,286 @@
 {% block title %}Edit RFI{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">✏️ Edit RFI</h1>
-<form method="POST" class="card p-4 shadow-sm">
-    <div class="mb-3">
-        <label class="form-label">Title</label>
-        <input type="text" name="title" class="form-control" value="{{ rfi.title }}" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">✏️ Edit RFI</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="rfiForm">
+                        <div class="row">
+                            <!-- Form Fields -->
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> Building Code
+                                    </label>
+                                    <select name="building_code" class="form-select" id="building-select" required>
+                                        <option value="">-- Select Building Code --</option>
+                                        {% for building in buildings %}
+                                            <option value="{{ building.code }}" {% if building.code == rfi.building_code %}selected{% endif %}>{{ building.code }} - {{ building.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="text-muted">Select the relevant building code</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> Discipline Code
+                                    </label>
+                                    <select name="discipline_code" class="form-select" id="discipline-select" required disabled>
+                                        <option value="">-- Select Discipline Code --</option>
+                                    </select>
+                                    <small class="text-muted">Select the relevant discipline code</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> ITP
+                                    </label>
+                                    <select name="itp_id" class="form-select" id="itp-select" required>
+                                        <option value="">-- Select ITP --</option>
+                                        {% for itp in itps %}
+                                            <option value="{{ itp.id }}" {% if itp.id == rfi.itp_id %}selected{% endif %}>{{ itp.description }} ({{ itp.itp_number }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="text-muted">Select the relevant Inspection and Test Plan</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> ITP Phase
+                                    </label>
+                                    <select name="itp_phase_id" class="form-select" id="phase-select" required>
+                                        <option value="">-- Select Phase --</option>
+                                    </select>
+                                    <small class="text-muted">Select the specific phase of the ITP</small>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-asterisk text-danger small"></i> Inspection Date
+                                            </label>
+                                            <input type="date" name="inspection_date" class="form-control" value="{{ rfi.inspection_date.strftime('%Y-%m-%d') }}" required>
+                                            <small class="text-muted">Select a future date for inspection</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-asterisk text-danger small"></i> Inspection Time
+                                            </label>
+                                            <input type="time" name="inspection_time" class="form-control" value="{{ rfi.inspection_time.strftime('%H:%M') }}" required min="09:00" max="17:00">
+                                            <small class="text-muted">Between 09:00 and 17:00</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> Drawing Number
+                                    </label>
+                                    <select name="drawing_number" class="form-select" id="drawing-select" required disabled>
+                                        <option value="">-- Select Drawing Number --</option>
+                                    </select>
+                                    <small class="text-muted">Select the relevant drawing number</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> Priority
+                                    </label>
+                                    <select name="priority" class="form-select" required>
+                                        <option value="Low" {% if rfi.priority == 'Low' %}selected{% endif %}>Low</option>
+                                        <option value="Normal" {% if rfi.priority == 'Normal' %}selected{% endif %}>Normal</option>
+                                        <option value="High" {% if rfi.priority == 'High' %}selected{% endif %}>High</option>
+                                        <option value="Urgent" {% if rfi.priority == 'Urgent' %}selected{% endif %}>Urgent</option>
+                                    </select>
+                                    <small class="text-muted">Select the priority level of the RFI</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Assign To</label>
+                                    <select name="assigned_to_id" class="form-select">
+                                        <option value="">-- Not Assigned --</option>
+                                        {% for user in users %}
+                                            <option value="{{ user.id }}" data-photo="{{ user.photo }}" data-name="{{ user.name }}" data-surname="{{ user.surname }}" {% if user.id == rfi.assigned_to_id %}selected{% endif %}>
+                                                {% if user.photo %}
+                                                    <img src="{{ url_for('static', filename='uploads/photos/' + user.photo) }}" 
+                                                         alt="{{ user.name }} photo" 
+                                                         class="rounded-circle me-2" 
+                                                         style="width: 30px; height: 30px; object-fit: cover;"
+                                                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                                {% else %}
+                                                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+                                                         style="width: 30px; height: 30px; background: #f8f9fa;">
+                                                        <i class="fas fa-user text-muted"></i>
+                                                    </div>
+                                                {% endif %}
+                                                {{ user.name or 'No Name' }} {{ user.surname or '' }} ({{ user.username }})
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <small class="text-muted">Optional: Assign the RFI to a specific user</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> Submitted By
+                                    </label>
+                                    <input type="text" name="submitted_by" class="form-control" value="{{ rfi.submitted_by }}" required readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-asterisk text-danger small"></i> Remarks
+                                    </label>
+                                    <textarea name="description" class="form-control" rows="3" required>{{ rfi.description }}</textarea>
+                                    <small class="text-muted">Provide detailed information about the issue or question</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="/" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update RFI</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea name="description" class="form-control" rows="3" required>{{ rfi.description }}</textarea>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Location</label>
-        <input type="text" name="location" class="form-control" value="{{ rfi.location }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Submitted By</label>
-        <input type="text" name="submitted_by" class="form-control" value="{{ rfi.submitted_by }}" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Update</button>
-    <a href="/" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
+
+<style>
+    .form-label {
+        font-weight: 500;
+    }
+    .text-danger {
+        font-size: 0.8em;
+    }
+    .text-muted {
+        font-size: 0.85em;
+    }
+</style>
+
+<script>
+// Building-Discipline mapping
+const buildingDisciplines = {{ building_disciplines|tojson|safe }};
+const buildingDisciplineDrawings = {{ building_discipline_drawings|tojson|safe }};
+
+// Handle building selection change
+document.getElementById('building-select').addEventListener('change', function() {
+    const disciplineSelect = document.getElementById('discipline-select');
+    const buildingCode = this.value;
+    
+    // Clear and disable discipline select if no building is selected
+    if (!buildingCode) {
+        disciplineSelect.innerHTML = '<option value="">-- Select Discipline Code --</option>';
+        disciplineSelect.disabled = true;
+        return;
+    }
+    
+    // Enable discipline select and populate with available disciplines
+    disciplineSelect.disabled = false;
+    disciplineSelect.innerHTML = '<option value="">-- Select Discipline Code --</option>';
+    
+    // Get disciplines for the selected building
+    const disciplines = buildingDisciplines[buildingCode] || [];
+    
+    // Add each discipline as an option
+    disciplines.forEach(discipline => {
+        const option = document.createElement('option');
+        option.value = discipline.code;
+        option.textContent = `${discipline.code} - ${discipline.name}`;
+        if (discipline.code === '{{ rfi.discipline_code }}') {
+            option.selected = true;
+        }
+        disciplineSelect.appendChild(option);
+    });
+});
+
+document.getElementById('discipline-select').addEventListener('change', function() {
+    const drawingSelect = document.getElementById('drawing-select');
+    const buildingCode = document.getElementById('building-select').value;
+    const disciplineCode = this.value;
+    
+    // Clear and disable drawing select if no discipline is selected
+    if (!disciplineCode) {
+        drawingSelect.innerHTML = '<option value="">-- Select Drawing Number --</option>';
+        drawingSelect.disabled = true;
+        return;
+    }
+    
+    // Enable drawing select and populate with available drawings
+    drawingSelect.disabled = false;
+    drawingSelect.innerHTML = '<option value="">-- Select Drawing Number --</option>';
+    
+    const drawings = buildingDisciplineDrawings[buildingCode]?.[disciplineCode] || [];
+    drawings.forEach(drawing => {
+        const option = document.createElement('option');
+        option.value = drawing.drawing_number;
+        option.textContent = `${drawing.drawing_number} (Rev. ${drawing.revision_number})`;
+        if (drawing.drawing_number === '{{ rfi.drawing_number }}') {
+            option.selected = true;
+        }
+        drawingSelect.appendChild(option);
+    });
+});
+
+document.getElementById('itp-select').addEventListener('change', function() {
+    const phaseSelect = document.getElementById('phase-select');
+    const itpId = this.value;
+    
+    if (itpId) {
+        phaseSelect.disabled = false;
+        phaseSelect.innerHTML = '<option value="">-- Select Phase --</option>';
+        
+        const phases = {{ phases|tojson|safe }};
+        const itpPhases = phases.filter(phase => phase.itp_id == itpId);
+        
+        itpPhases.forEach(phase => {
+            const option = document.createElement('option');
+            option.value = phase.id;
+            option.textContent = `${phase.phase_code || ''} - ${phase.activity_name}`;
+            if (phase.id === {{ rfi.itp_phase_id }}) {
+                option.selected = true;
+            }
+            phaseSelect.appendChild(option);
+        });
+    } else {
+        phaseSelect.disabled = true;
+        phaseSelect.innerHTML = '<option value="">-- Select Phase --</option>';
+    }
+});
+
+// Form submission time validation
+document.getElementById('rfiForm').addEventListener('submit', function(e) {
+    const inspectionTime = document.querySelector('input[name="inspection_time"]').value;
+    const time = new Date(`2000-01-01T${inspectionTime}`);
+    const minTime = new Date('2000-01-01T09:00');
+    const maxTime = new Date('2000-01-01T17:00');
+    
+    if (time < minTime || time > maxTime) {
+        e.preventDefault();
+        alert('Inspection time must be between 09:00 and 17:00');
+    }
+});
+
+// Initialize form with current values
+document.addEventListener('DOMContentLoaded', function() {
+    // Trigger building change to populate disciplines
+    const buildingSelect = document.getElementById('building-select');
+    if (buildingSelect.value) {
+        buildingSelect.dispatchEvent(new Event('change'));
+    }
+    
+    // Trigger discipline change to populate drawings
+    const disciplineSelect = document.getElementById('discipline-select');
+    if (disciplineSelect.value) {
+        disciplineSelect.dispatchEvent(new Event('change'));
+    }
+    
+    // Trigger ITP change to populate phases
+    const itpSelect = document.getElementById('itp-select');
+    if (itpSelect.value) {
+        itpSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
 {% endblock %}

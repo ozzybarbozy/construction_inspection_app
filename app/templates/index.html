@@ -31,51 +31,73 @@
 </div>
 
 <!-- Overall Summary Card -->
-<div class="card shadow-sm mb-4">
+<div class="card shadow-sm mb-4 summary-card">
     <div class="card-body">
         <h5 class="card-title mb-4">📊 Overall RFI Summary</h5>
         <div class="row">
             <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-clipboard-list text-primary"></i>
+                <div class="summary-item" data-status="total">
+                    <div class="summary-icon bg-gradient-primary">
+                        <i class="fas fa-clipboard-list"></i>
                     </div>
-                    <div>
-                        <h6 class="mb-0">Total RFIs</h6>
-                        <h3 class="mb-0">{{ rfis|length }}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-clock text-warning"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">Open RFIs</h6>
-                        <h3 class="mb-0">{{ rfis|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Total RFIs</h6>
+                        <h3 class="mb-1">{{ rfis|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                        </div>
+                        <small class="text-muted">All RFIs in the system</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-check text-success"></i>
+                <div class="summary-item" data-status="open">
+                    <div class="summary-icon bg-gradient-warning">
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <div>
-                        <h6 class="mb-0">Accepted</h6>
-                        <h3 class="mb-0">{{ rfis|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Open RFIs</h6>
+                        <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: {{ (rfis|selectattr('status', 'equalto', 'Open')|list|length / rfis|length * 100)|round|int }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Requiring attention</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-danger bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-times text-danger"></i>
+                <div class="summary-item" data-status="accepted">
+                    <div class="summary-icon bg-gradient-success">
+                        <i class="fas fa-check"></i>
                     </div>
-                    <div>
-                        <h6 class="mb-0">Rejected</h6>
-                        <h3 class="mb-0">{{ rfis|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Accepted</h6>
+                        <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ (rfis|selectattr('status', 'equalto', 'Accepted')|list|length / rfis|length * 100)|round|int }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Successfully resolved</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-item" data-status="rejected">
+                    <div class="summary-icon bg-gradient-danger">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Rejected</h6>
+                        <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-danger" role="progressbar" 
+                                 style="width: {{ (rfis|selectattr('status', 'equalto', 'Rejected')|list|length / rfis|length * 100)|round|int }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Not approved</small>
                     </div>
                 </div>
             </div>
@@ -84,51 +106,75 @@
 </div>
 
 <!-- Your Summary Card -->
-<div class="card shadow-sm mb-4">
+<div class="card shadow-sm mb-4 summary-card">
     <div class="card-body">
         <h5 class="card-title mb-4">📊 Your RFI Summary</h5>
         <div class="row">
             <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-clipboard-list text-primary"></i>
+                <div class="summary-item" data-status="assigned">
+                    <div class="summary-icon bg-gradient-primary">
+                        <i class="fas fa-user-tag"></i>
                     </div>
-                    <div>
-                        <h6 class="mb-0">Total Assigned</h6>
-                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length }}</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-clock text-warning"></i>
-                    </div>
-                    <div>
-                        <h6 class="mb-0">Open RFIs</h6>
-                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Total Assigned</h6>
+                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-primary" role="progressbar" 
+                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length / rfis|length * 100)|round|int if rfis|length > 0 else 0 }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">RFIs assigned to you</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-check text-success"></i>
+                <div class="summary-item" data-status="your-open">
+                    <div class="summary-icon bg-gradient-warning">
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <div>
-                        <h6 class="mb-0">Accepted</h6>
-                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Open RFIs</h6>
+                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Requiring your attention</small>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-danger bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                        <i class="fas fa-times text-danger"></i>
+                <div class="summary-item" data-status="your-accepted">
+                    <div class="summary-icon bg-gradient-success">
+                        <i class="fas fa-check"></i>
                     </div>
-                    <div>
-                        <h6 class="mb-0">Rejected</h6>
-                        <h3 class="mb-0">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Accepted</h6>
+                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Successfully resolved</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-item" data-status="your-rejected">
+                    <div class="summary-icon bg-gradient-danger">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h6 class="mb-1">Rejected</h6>
+                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                        <div class="progress mt-2">
+                            <div class="progress-bar bg-danger" role="progressbar" 
+                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Not approved</small>
                     </div>
                 </div>
             </div>
@@ -349,6 +395,68 @@
     .rounded-circle {
         flex-shrink: 0;
     }
+    .summary-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .summary-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .summary-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.3s ease;
+    }
+    
+    .summary-item:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+        font-size: 1.25rem;
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(45deg, #4e73df, #224abe);
+    }
+    
+    .bg-gradient-warning {
+        background: linear-gradient(45deg, #f6c23e, #dda20a);
+    }
+    
+    .bg-gradient-success {
+        background: linear-gradient(45deg, #1cc88a, #13855c);
+    }
+    
+    .bg-gradient-danger {
+        background: linear-gradient(45deg, #e74a3b, #be2617);
+    }
+    
+    .summary-content {
+        flex: 1;
+    }
+    
+    .progress {
+        height: 0.5rem;
+        border-radius: 1rem;
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .progress-bar {
+        border-radius: 1rem;
+    }
 </style>
 
 <script>
@@ -432,6 +540,15 @@ document.addEventListener('DOMContentLoaded', function() {
             card.style.display = shouldShow ? '' : 'none';
         });
     }
+
+    // Add click handlers for summary items
+    document.querySelectorAll('.summary-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const status = this.getAttribute('data-status');
+            // Implement filtering based on clicked status
+            // This will be implemented in the next step
+        });
+    });
 });
 </script>
 {% endblock %}

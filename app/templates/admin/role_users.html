@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Users with {{ role.name }} Role{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('admin.manage_roles') }}" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i> Back to Roles
+            </a>
+            <h1 class="mb-0">
+                <span class="badge bg-{{ role.color }} me-2">{{ role.name }}</span>
+                Users
+            </h1>
+        </div>
+        <a href="{{ url_for('admin.add_user') }}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add New User
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Password</th>
+                            <th>Stakeholder</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if user.photo %}
+                                    <img src="{{ url_for('static', filename='uploads/photos/' + user.photo) }}" 
+                                         alt="{{ user.name }} photo" 
+                                         class="rounded-circle me-2" 
+                                         style="width: 32px; height: 32px; object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                    {% else %}
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 32px; height: 32px; background: #f8f9fa;">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    {{ user.name }} {{ user.surname }}
+                                </div>
+                            </td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.cell_phone }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <input type="password" class="form-control form-control-sm password-field" 
+                                           style="max-width: 120px;" value="Hidden" readonly 
+                                           data-password="{{ user.plaintext_password }}">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2 toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.stakeholder %}
+                                    <div class="d-flex align-items-center">
+                                        {% if user.stakeholder.logo %}
+                                        <img src="{{ url_for('admin.serve_logo', filename=user.stakeholder.logo) }}" 
+                                             alt="{{ user.stakeholder.name }} logo" 
+                                             class="rounded-circle me-2" 
+                                             style="width: 24px; height: 24px; object-fit: cover;"
+                                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                        {% endif %}
+                                        {{ user.stakeholder.name }}
+                                        <span class="badge bg-secondary ms-2">{{ user.stakeholder.stakeholder_role_obj.name if user.stakeholder.stakeholder_role_obj else 'No Role' }}</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">None</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    .btn-outline-primary:hover,
+    .btn-outline-danger:hover,
+    .btn-outline-secondary:hover {
+        color: white;
+    }
+    .rounded-circle {
+        border: 2px solid #dee2e6;
+    }
+    .password-field {
+        font-family: monospace;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password toggle functionality
+    document.querySelectorAll('.toggle-password').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var input = this.previousElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                input.value = input.getAttribute('data-password');
+            } else {
+                input.type = 'password';
+                input.value = "Hidden";
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

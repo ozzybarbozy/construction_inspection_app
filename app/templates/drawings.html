@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Drawing Management</h2>
+    
+    <!-- Drawing Creation Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Create New Drawing</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.drawings') }}">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="building_code">Building Code</label>
+                            <select class="form-control" id="building_code" name="building_code" required>
+                                <option value="">Select Building</option>
+                                {% for building in buildings %}
+                                <option value="{{ building.code }}">{{ building.code }} - {{ building.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="discipline_code">Discipline Code</label>
+                            <select class="form-control" id="discipline_code" name="discipline_code" required>
+                                <option value="">Select Discipline</option>
+                                {% for discipline in discipline_codes %}
+                                <option value="{{ discipline.code }}">{{ discipline.code }} - {{ discipline.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="sequence_number">Sequence Number</label>
+                            <input type="number" class="form-control" id="sequence_number" name="sequence_number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label for="revision_number">Revision Number</label>
+                            <select class="form-control" id="revision_number" name="revision_number" required>
+                                {% for i in range(100) %}
+                                <option value="R{{ '%02d' % i }}">R{{ '%02d' % i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Create Drawing</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Drawings List -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Existing Drawings</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Drawing Number</th>
+                            <th>Building</th>
+                            <th>Discipline</th>
+                            <th>Sequence</th>
+                            <th>Revision</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for drawing in drawings %}
+                        <tr>
+                            <td>{{ drawing.drawing_number }}</td>
+                            <td>{{ drawing.building.name }}</td>
+                            <td>{{ drawing.discipline_code }}</td>
+                            <td>{{ drawing.sequence_number }}</td>
+                            <td>{{ drawing.revision_number }}</td>
+                            <td>{{ drawing.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -6,9 +6,19 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">👥 Manage Users</h1>
-        <a href="{{ url_for('admin.add_user') }}" class="btn btn-success">
-            <i class="fas fa-plus"></i> Add New User
-        </a>
+        <div class="d-flex gap-2">
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary view-toggle" data-view="card">
+                    <i class="fas fa-th-large"></i> Card View
+                </button>
+                <button type="button" class="btn btn-outline-secondary view-toggle" data-view="list">
+                    <i class="fas fa-list"></i> List View
+                </button>
+            </div>
+            <a href="{{ url_for('admin.add_user') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Add New User
+            </a>
+        </div>
     </div>
 
     {# Group users by stakeholder #}
@@ -42,110 +52,204 @@
     {% set sorted_groups = [] %}
     {% for group_id, group in stakeholder_groups.items() %}
         {% if group.stakeholder %}
-            {% set _ = sorted_groups.append((group_id, group, role_order.get(group.stakeholder.role, 999))) %}
+            {% set _ = sorted_groups.append((group_id, group, role_order.get(group.stakeholder.stakeholder_role_obj.name if group.stakeholder.stakeholder_role_obj else '', 999))) %}
         {% else %}
             {% set _ = sorted_groups.append((group_id, group, 999)) %}
         {% endif %}
     {% endfor %}
     {% set sorted_groups = sorted_groups|sort(attribute='2') %}
 
-    {# Display stakeholder groups #}
-    {% for group_id, group, _ in sorted_groups %}
-    <div class="stakeholder-group mb-4">
-        <div class="d-flex align-items-center mb-3">
-            {% if group.stakeholder %}
-                {% if group.stakeholder.logo %}
-                <img src="{{ url_for('admin.serve_logo', filename=group.stakeholder.logo) }}" 
-                     alt="{{ group.stakeholder.name }} logo" 
-                     class="rounded-circle me-2" 
-                     style="width: 40px; height: 40px; object-fit: cover;"
-                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+    {# Card View #}
+    <div id="card-view">
+        {% for group_id, group, _ in sorted_groups %}
+        <div class="stakeholder-group mb-4">
+            <div class="d-flex align-items-center mb-3">
+                {% if group.stakeholder %}
+                    {% if group.stakeholder.logo %}
+                    <img src="{{ url_for('admin.serve_logo', filename=group.stakeholder.logo) }}" 
+                         alt="{{ group.stakeholder.name }} logo" 
+                         class="rounded-circle me-2" 
+                         style="width: 40px; height: 40px; object-fit: cover;"
+                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                    {% else %}
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
+                         style="width: 40px; height: 40px; background: #f8f9fa;">
+                        <i class="fas fa-building text-muted"></i>
+                    </div>
+                    {% endif %}
+                    <h3 class="mb-0">{{ group.stakeholder.name }}</h3>
+                    <span class="badge bg-secondary ms-2">{{ group.stakeholder.stakeholder_role_obj.name if group.stakeholder.stakeholder_role_obj else 'No Role' }}</span>
                 {% else %}
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
-                     style="width: 40px; height: 40px; background: #f8f9fa;">
-                    <i class="fas fa-building text-muted"></i>
-                </div>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
+                         style="width: 40px; height: 40px; background: #f8f9fa;">
+                        <i class="fas fa-users text-muted"></i>
+                    </div>
+                    <h3 class="mb-0">Users without Stakeholder</h3>
                 {% endif %}
-                <h3 class="mb-0">{{ group.stakeholder.name }}</h3>
-                <span class="badge bg-secondary ms-2">{{ group.stakeholder.role }}</span>
-            {% else %}
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-2" 
-                     style="width: 40px; height: 40px; background: #f8f9fa;">
-                    <i class="fas fa-users text-muted"></i>
-                </div>
-                <h3 class="mb-0">Users without Stakeholder</h3>
-            {% endif %}
-        </div>
+            </div>
 
-        <div class="row">
-            {% for user in group.users %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="flex-shrink-0 me-3">
-                                {% if user.photo %}
-                                <img src="{{ url_for('static', filename='uploads/photos/' + user.photo) }}" 
-                                     alt="{{ user.name }} photo" 
-                                     class="rounded-circle" 
-                                     style="width: 60px; height: 60px; object-fit: cover;"
-                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
-                                {% else %}
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 60px; height: 60px; background: #f8f9fa;">
-                                    <i class="fas fa-user text-muted fa-2x"></i>
+            <div class="row">
+                {% for user in group.users %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    {% if user.photo %}
+                                    <img src="{{ url_for('static', filename='uploads/photos/' + user.photo) }}" 
+                                         alt="{{ user.name }} photo" 
+                                         class="rounded-circle" 
+                                         style="width: 50px; height: 50px; object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                    {% else %}
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 50px; height: 50px; background: #f8f9fa;">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-1">{{ user.name }} {{ user.surname }}</h5>
+                                    <p class="text-muted mb-1">{{ user.username }}</p>
+                                    <p class="text-muted mb-1">{{ user.email }}</p>
+                                    {% if user.plaintext_password %}
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="text-muted me-2">Password:</span>
+                                        <code class="bg-light p-1 rounded password-field" 
+                                              data-password="{{ user.plaintext_password }}">••••••••</code>
+                                        <div class="btn-group ms-2">
+                                            <button class="btn btn-sm btn-outline-secondary reveal-password" 
+                                                    title="Reveal password">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary copy-password" 
+                                                    data-password="{{ user.plaintext_password }}"
+                                                    title="Copy password">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% if user.discipline %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-tools me-1"></i>{{ user.discipline.code }}
+                                    </span>
+                                    {% endif %}
+                                </div>
                             </div>
-                            <div class="flex-grow-1">
-                                <h5 class="card-title mb-1">{{ user.name or 'No Name' }} {{ user.surname or '' }}</h5>
-                                <p class="text-muted mb-0">{{ user.username }}</p>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-envelope text-muted me-2"></i>
-                                <span>{{ user.email }}</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-phone text-muted me-2"></i>
-                                <span>{{ user.cell_phone or 'No phone' }}</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-user-tag text-muted me-2"></i>
-                                <span>{{ user.role_obj.name if user.role_obj else 'No role' }}</span>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <input type="password" class="form-control form-control-sm password-field" 
-                                       style="max-width: 120px;" value="Hidden" readonly 
-                                       data-password="{{ user.plaintext_password }}">
-                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2 toggle-password">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" 
-                                   class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" 
-                                   class="btn btn-outline-danger btn-sm" 
-                                   onclick="return confirm('Are you sure you want to delete this user?');">
-                                    <i class="fas fa-trash"></i>
-                                </a>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if user.user_role %}
+                                    <span class="badge bg-{{ user.user_role.color }}">{{ user.user_role.name }}</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">No Role</span>
+                                    {% endif %}
+                                </div>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {# List View #}
+    <div id="list-view" style="display: none;">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Stakeholder</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for group_id, group, _ in sorted_groups %}
+                                {% for user in group.users %}
+                                <tr>
+                                    <td>{{ user.name }} {{ user.surname }}</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.cell_phone }}</td>
+                                    <td>
+                                        {% if user.user_role %}
+                                        <span class="badge bg-{{ user.user_role.color }}">{{ user.user_role.name }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">No Role</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user.stakeholder %}
+                                            <div class="d-flex align-items-center">
+                                                {% if user.stakeholder.logo %}
+                                                <img src="{{ url_for('admin.serve_logo', filename=user.stakeholder.logo) }}" 
+                                                     alt="{{ user.stakeholder.name }} logo" 
+                                                     class="rounded-circle me-2" 
+                                                     style="width: 24px; height: 24px; object-fit: cover;"
+                                                     onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                                {% endif %}
+                                                {{ user.stakeholder.name }}
+                                                <span class="badge bg-secondary ms-2">{{ user.stakeholder.stakeholder_role_obj.name if user.stakeholder.stakeholder_role_obj else 'No Role' }}</span>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">None</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if user.plaintext_password %}
+                                        <div class="d-flex align-items-center">
+                                            <code class="bg-light p-1 rounded password-field" 
+                                                  data-password="{{ user.plaintext_password }}">••••••••</code>
+                                            <div class="btn-group ms-2">
+                                                <button class="btn btn-sm btn-outline-secondary reveal-password" 
+                                                        title="Reveal password">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-secondary copy-password" 
+                                                        data-password="{{ user.plaintext_password }}"
+                                                        title="Copy password">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-    {% endfor %}
 </div>
 
 <a href="{{ url_for('admin.admin_dashboard') }}" class="btn btn-outline-secondary mt-3">
@@ -181,19 +285,67 @@
         padding: 1.5rem;
         border-radius: 0.5rem;
     }
+    .view-toggle.active {
+        background-color: #6c757d;
+        color: white;
+    }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.toggle-password').forEach(function(button) {
-        button.addEventListener('click', function() {
-            var input = this.previousElementSibling;
-            if (input.type === 'password') {
-                input.type = 'text';
-                input.value = input.getAttribute('data-password');
+    const viewToggles = document.querySelectorAll('.view-toggle');
+    const cardView = document.getElementById('card-view');
+    const listView = document.getElementById('list-view');
+    const copyButtons = document.querySelectorAll('.copy-password');
+    const revealButtons = document.querySelectorAll('.reveal-password');
+    const passwordFields = document.querySelectorAll('.password-field');
+
+    // View toggle functionality
+    viewToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const view = this.getAttribute('data-view');
+            viewToggles.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+
+            if (view === 'card') {
+                cardView.style.display = 'block';
+                listView.style.display = 'none';
             } else {
-                input.type = 'password';
-                input.value = "Hidden";
+                cardView.style.display = 'none';
+                listView.style.display = 'block';
+            }
+        });
+    });
+
+    // Copy password functionality
+    copyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const password = this.getAttribute('data-password');
+            navigator.clipboard.writeText(password).then(() => {
+                const originalIcon = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    this.innerHTML = originalIcon;
+                }, 2000);
+            });
+        });
+    });
+
+    // Reveal password functionality
+    revealButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const passwordField = this.closest('.d-flex').querySelector('.password-field');
+            const password = passwordField.getAttribute('data-password');
+            const icon = this.querySelector('i');
+            
+            if (passwordField.textContent === '••••••••') {
+                passwordField.textContent = password;
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.textContent = '••••••••';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         });
     });

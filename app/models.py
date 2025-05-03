@@ -2,28 +2,45 @@ from . import db
 from datetime import datetime
 from flask_login import UserMixin
 
-# Association table for role-permission many-to-many relationship
-role_permissions = db.Table('role_permissions',
-    db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True),
+# Association tables for role-permission many-to-many relationships
+user_role_permissions = db.Table('user_role_permissions',
+    db.Column('user_role_id', db.Integer, db.ForeignKey('user_role.id'), primary_key=True),
     db.Column('permission_id', db.Integer, db.ForeignKey('permission.id'), primary_key=True)
 )
 
-class Role(db.Model):
+stakeholder_role_permissions = db.Table('stakeholder_role_permissions',
+    db.Column('stakeholder_role_id', db.Integer, db.ForeignKey('stakeholder_role.id'), primary_key=True),
+    db.Column('permission_id', db.Integer, db.ForeignKey('permission.id'), primary_key=True)
+)
+
+class UserRole(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.String(255))
     color = db.Column(db.String(20), default='primary')  # For UI styling
-    permissions = db.relationship('Permission', secondary=role_permissions, backref='roles')
-    users = db.relationship('User', backref='role_obj', lazy=True)
+    permissions = db.relationship('Permission', secondary=user_role_permissions, backref='user_roles')
+    users = db.relationship('User', backref='user_role', lazy=True)
 
     def __repr__(self):
-        return f'<Role {self.name}>'
+        return f'<UserRole {self.name}>'
+
+class StakeholderRole(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+    description = db.Column(db.String(255))
+    color = db.Column(db.String(20), default='primary')  # For UI styling
+    permissions = db.relationship('Permission', secondary=stakeholder_role_permissions, backref='stakeholder_roles')
+    stakeholders = db.relationship('Stakeholder', backref='stakeholder_role_obj', lazy=True)
+
+    def __repr__(self):
+        return f'<StakeholderRole {self.name}>'
 
 class Permission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.String(255))
     code = db.Column(db.String(50), unique=True, nullable=False)  # For programmatic checks
+    permission_type = db.Column(db.String(20), nullable=False)  # 'user' or 'stakeholder'
 
     def __repr__(self):
         return f'<Permission {self.name}>'
@@ -32,7 +49,7 @@ class RFI(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rfi_number = db.Column(db.String(50), unique=True, nullable=False)  # New column for RFI number
     title = db.Column(db.String(100), nullable=True)
-    description = db.Column(db.Text, nullable=False)
+    remarks = db.Column(db.Text, nullable=False)
     location = db.Column(db.String(100), nullable=True)
     submitted_by = db.Column(db.String(50), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
@@ -41,7 +58,6 @@ class RFI(db.Model):
     priority = db.Column(db.String(20), default='Normal')  # Low, Normal, High, Urgent
     itp_id = db.Column(db.Integer, db.ForeignKey('itp.id'), nullable=True)
     itp_phase_id = db.Column(db.Integer, db.ForeignKey('itp_phase.id'), nullable=True)
-    due_date = db.Column(db.Date, nullable=True)
     assigned_to_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     building_code = db.Column(db.String(50), nullable=False)
     discipline_code = db.Column(db.String(10), nullable=False)
@@ -80,13 +96,13 @@ class RFI(db.Model):
 
     def can_be_accepted_rejected_by(self, user):
         # Admin can accept/reject any RFI
-        if (user.role_obj and user.role_obj.name == 'Admin') or \
-           (user.stakeholder and user.stakeholder.role == 'Admin'):
+        if (user.user_role and user.user_role.name == 'Admin') or \
+           (user.stakeholder and user.stakeholder.stakeholder_role_obj and user.stakeholder.stakeholder_role_obj.name == 'Admin'):
             return not self.is_closed()
         
         # Engineers can only accept/reject RFIs assigned to them
-        return ((user.role_obj and user.role_obj.name == 'Engineer') or 
-                (user.stakeholder and user.stakeholder.role == 'Engineer')) and \
+        return ((user.user_role and user.user_role.name == 'Engineer') or 
+                (user.stakeholder and user.stakeholder.stakeholder_role_obj and user.stakeholder.stakeholder_role_obj.name == 'Engineer')) and \
                 self.assigned_to_id == user.id and \
                 not self.is_closed()
 
@@ -96,24 +112,39 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     plaintext_password = db.Column(db.String(100), nullable=True)
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'), nullable=True)
+    user_role_id = db.Column(db.Integer, db.ForeignKey('user_role.id'), nullable=True)
     stakeholder_id = db.Column(db.Integer, db.ForeignKey('stakeholder.id'), nullable=True)
+    discipline_code = db.Column(db.String(10), db.ForeignKey('discipline_code.code'), nullable=True)  # New field
     name = db.Column(db.String(100), nullable=True)
     surname = db.Column(db.String(100), nullable=True)
     cell_phone = db.Column(db.String(20), nullable=True)
     photo = db.Column(db.String(255), nullable=True)  # Path to the photo file
 
+    # Add relationship with DisciplineCode
+    discipline = db.relationship('DisciplineCode', backref='users')
+
     def has_permission(self, permission_code):
-        if not self.role_obj:
-            return False
-        return any(permission.code == permission_code for permission in self.role_obj.permissions)
+        # Check user role permissions
+        if self.user_role:
+            if any(permission.code == permission_code for permission in self.user_role.permissions):
+                return True
+        
+        # Check stakeholder role permissions
+        if self.stakeholder and self.stakeholder.stakeholder_role_obj:
+            if any(permission.code == permission_code for permission in self.stakeholder.stakeholder_role_obj.permissions):
+                return True
+        
+        return False
 
 class Stakeholder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
-    role = db.Column(db.String(50), nullable=False)
+    stakeholder_role_id = db.Column(db.Integer, db.ForeignKey('stakeholder_role.id'), nullable=True)
     logo = db.Column(db.String(255), nullable=True)  # Path to the logo file
     users = db.relationship('User', backref='stakeholder', lazy=True)
+
+    def __repr__(self):
+        return f'<Stakeholder {self.name}>'
 
 class ITP(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -145,16 +176,26 @@ class ITPPhase(db.Model):
 
 class Drawing(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    drawing_number = db.Column(db.String(50), unique=True, nullable=False)
+    drawing_title = db.Column(db.String(255), nullable=True)
     building_code = db.Column(db.String(10), db.ForeignKey('building.code'), nullable=False)
     discipline_code = db.Column(db.String(10), nullable=False)
     sequence_number = db.Column(db.Integer, nullable=False)
     revision_number = db.Column(db.String(10), nullable=False)
+    issue_date = db.Column(db.Date, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     building = db.relationship('Building', backref='drawings')
+
+    @property
+    def drawing_number(self):
+        """Generate the drawing number in the format: PRO-SPP2-DWG-{DisciplineCode}-{BuildingCode}-{SequenceNumber}-{Revision}"""
+        # Format sequence number with leading zeros
+        formatted_sequence = f"{self.sequence_number:03d}"
+        # Format revision number with underscore and leading zeros
+        formatted_revision = f"_R{self.revision_number.zfill(2)}"
+        return f"PRO-SPP2-DWG-{self.discipline_code}-{self.building_code}-{formatted_sequence}{formatted_revision}"
 
     def __repr__(self):
         return f'<Drawing {self.drawing_number}>'

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Stakeholder Role Permissions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="fas fa-shield-alt me-2"></i>Manage Permissions for {{ role.name }}
+                </h1>
+                <a href="{{ url_for('admin.list_stakeholders') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Stakeholders
+                </a>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-4">
+                            <h5 class="card-title">System Permissions</h5>
+                            <p class="text-muted">These permissions control access to critical system functions.</p>
+                            <div class="row">
+                                {% for permission in system_permissions %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="permissions[]" 
+                                               value="{{ permission.id }}"
+                                               id="permission-{{ permission.id }}"
+                                               {% if permission in role.permissions %}checked{% endif %}>
+                                        <label class="form-check-label" for="permission-{{ permission.id }}">
+                                            {{ permission.name }}
+                                            <small class="text-muted d-block">{{ permission.description }}</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h5 class="card-title">Regular Permissions</h5>
+                            <p class="text-muted">These permissions control access to regular application features.</p>
+                            <div class="row">
+                                {% for permission in regular_permissions %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" 
+                                               name="permissions[]" 
+                                               value="{{ permission.id }}"
+                                               id="permission-{{ permission.id }}"
+                                               {% if permission in role.permissions %}checked{% endif %}>
+                                        <label class="form-check-label" for="permission-{{ permission.id }}">
+                                            {{ permission.name }}
+                                            <small class="text-muted d-block">{{ permission.description }}</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Permissions
+                            </button>
+                            <a href="{{ url_for('admin.list_stakeholders') }}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-check-input:checked {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+    }
+    .form-check-label {
+        cursor: pointer;
+    }
+    .gap-2 {
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %} 

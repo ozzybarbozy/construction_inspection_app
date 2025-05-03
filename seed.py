@@ -1,6 +1,6 @@
 import os
 from app import create_app, db
-from app.models import User
+from app.models import User, UserRole, Permission, RFI, Stakeholder, ITP, ITPItem, ITPItemStatus, ITPStatus
 from werkzeug.security import generate_password_hash
 
 # Database dosyasını otomatik sil

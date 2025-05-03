@@ -22,82 +22,107 @@
                 <i class="fas fa-lock-open"></i> Show Open Only
             </button>
         </div>
-        {% if current_user.role_obj and current_user.role_obj.name == 'Admin' or current_user.stakeholder and current_user.stakeholder.role == 'Contractor' %}
-        <a href="{{ url_for('main.add_rfi') }}" class="btn btn-outline-success">
-            <i class="fas fa-plus"></i> Submit New RFI
-        </a>
+        {% if current_user.is_authenticated %}
+            {% if current_user.user_role and current_user.user_role.name == 'Admin' %}
+            <a href="{{ url_for('main.add_rfi') }}" class="btn btn-outline-success">
+                <i class="fas fa-plus"></i> Submit New RFI
+            </a>
+            {% endif %}
         {% endif %}
     </div>
 </div>
 
 <!-- Overall Summary Card -->
 <div class="card shadow-sm mb-4 summary-card">
-    <div class="card-body">
-        <h5 class="card-title mb-4">📊 Overall RFI Summary</h5>
-        <div class="row">
-            <div class="col-md-3">
-                <div class="summary-item" data-status="total">
-                    <div class="summary-icon bg-gradient-primary">
-                        <i class="fas fa-clipboard-list"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Total RFIs</h6>
-                        <h3 class="mb-1">{{ rfis|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
-                        </div>
-                        <small class="text-muted">All RFIs in the system</small>
-                    </div>
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-4">
+            <h5 class="card-title mb-0">📊 Overall RFI Summary</h5>
+            <div class="d-flex gap-3">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="badge bg-warning">{{ rfis|selectattr('status', 'equalto', 'Open')|list|length }}</span>
+                    <small class="text-muted">Open</small>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="badge bg-success">{{ rfis|selectattr('status', 'equalto', 'Accepted')|list|length }}</span>
+                    <small class="text-muted">Accepted</small>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="badge bg-danger">{{ rfis|selectattr('status', 'equalto', 'Rejected')|list|length }}</span>
+                    <small class="text-muted">Rejected</small>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-item" data-status="open">
-                    <div class="summary-icon bg-gradient-warning">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Open RFIs</h6>
-                        <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-warning" role="progressbar" 
-                                 style="width: {{ (rfis|selectattr('status', 'equalto', 'Open')|list|length / rfis|length * 100)|round|int }}%">
-                            </div>
+        </div>
+        <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#overallSummary" aria-expanded="true" aria-controls="overallSummary">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+    <div class="collapse show" id="overallSummary">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="total">
+                        <div class="summary-icon bg-gradient-primary">
+                            <i class="fas fa-clipboard-list"></i>
                         </div>
-                        <small class="text-muted">Requiring attention</small>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Total RFIs</h6>
+                            <h3 class="mb-1">{{ rfis|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 100%"></div>
+                            </div>
+                            <small class="text-muted">All RFIs in the system</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="summary-item" data-status="accepted">
-                    <div class="summary-icon bg-gradient-success">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Accepted</h6>
-                        <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ (rfis|selectattr('status', 'equalto', 'Accepted')|list|length / rfis|length * 100)|round|int }}%">
-                            </div>
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="open">
+                        <div class="summary-icon bg-gradient-warning">
+                            <i class="fas fa-clock"></i>
                         </div>
-                        <small class="text-muted">Successfully resolved</small>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Open RFIs</h6>
+                            <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: {{ (rfis|selectattr('status', 'equalto', 'Open')|list|length / rfis|length * 100)|round|int if rfis|length > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">Requiring attention</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="summary-item" data-status="rejected">
-                    <div class="summary-icon bg-gradient-danger">
-                        <i class="fas fa-times"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Rejected</h6>
-                        <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-danger" role="progressbar" 
-                                 style="width: {{ (rfis|selectattr('status', 'equalto', 'Rejected')|list|length / rfis|length * 100)|round|int }}%">
-                            </div>
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="accepted">
+                        <div class="summary-icon bg-gradient-success">
+                            <i class="fas fa-check"></i>
                         </div>
-                        <small class="text-muted">Not approved</small>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Accepted</h6>
+                            <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ (rfis|selectattr('status', 'equalto', 'Accepted')|list|length / rfis|length * 100)|round|int if rfis|length > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">Successfully resolved</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="rejected">
+                        <div class="summary-icon bg-gradient-danger">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Rejected</h6>
+                            <h3 class="mb-1">{{ rfis|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-danger" role="progressbar" 
+                                     style="width: {{ (rfis|selectattr('status', 'equalto', 'Rejected')|list|length / rfis|length * 100)|round|int if rfis|length > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">Not approved</small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -107,74 +132,97 @@
 
 <!-- Your Summary Card -->
 <div class="card shadow-sm mb-4 summary-card">
-    <div class="card-body">
-        <h5 class="card-title mb-4">📊 Your RFI Summary</h5>
-        <div class="row">
-            <div class="col-md-3">
-                <div class="summary-item" data-status="assigned">
-                    <div class="summary-icon bg-gradient-primary">
-                        <i class="fas fa-user-tag"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Total Assigned</h6>
-                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-primary" role="progressbar" 
-                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length / rfis|length * 100)|round|int if rfis|length > 0 else 0 }}%">
-                            </div>
-                        </div>
-                        <small class="text-muted">RFIs assigned to you</small>
-                    </div>
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-4">
+            <h5 class="card-title mb-0">📊 Your RFI Summary</h5>
+            <div class="d-flex gap-3">
+                <div class="d-flex align-items-center gap-1">
+                    <span class="badge bg-warning">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length }}</span>
+                    <small class="text-muted">Open</small>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="badge bg-success">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length }}</span>
+                    <small class="text-muted">Accepted</small>
+                </div>
+                <div class="d-flex align-items-center gap-1">
+                    <span class="badge bg-danger">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length }}</span>
+                    <small class="text-muted">Rejected</small>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="summary-item" data-status="your-open">
-                    <div class="summary-icon bg-gradient-warning">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Open RFIs</h6>
-                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-warning" role="progressbar" 
-                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
-                            </div>
+        </div>
+        <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#yourSummary" aria-expanded="true" aria-controls="yourSummary">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+    <div class="collapse show" id="yourSummary">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="assigned">
+                        <div class="summary-icon bg-gradient-primary">
+                            <i class="fas fa-user-tag"></i>
                         </div>
-                        <small class="text-muted">Requiring your attention</small>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Total Assigned</h6>
+                            <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-primary" role="progressbar" 
+                                     style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length / rfis|length * 100)|round|int if rfis|length > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">RFIs assigned to you</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="summary-item" data-status="your-accepted">
-                    <div class="summary-icon bg-gradient-success">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Accepted</h6>
-                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
-                            </div>
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="your-open">
+                        <div class="summary-icon bg-gradient-warning">
+                            <i class="fas fa-clock"></i>
                         </div>
-                        <small class="text-muted">Successfully resolved</small>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Open RFIs</h6>
+                            <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Open')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">Requiring your attention</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <div class="summary-item" data-status="your-rejected">
-                    <div class="summary-icon bg-gradient-danger">
-                        <i class="fas fa-times"></i>
-                    </div>
-                    <div class="summary-content">
-                        <h6 class="mb-1">Rejected</h6>
-                        <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
-                        <div class="progress mt-2">
-                            <div class="progress-bar bg-danger" role="progressbar" 
-                                 style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
-                            </div>
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="your-accepted">
+                        <div class="summary-icon bg-gradient-success">
+                            <i class="fas fa-check"></i>
                         </div>
-                        <small class="text-muted">Not approved</small>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Accepted</h6>
+                            <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Accepted')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">Successfully resolved</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-item" data-status="your-rejected">
+                        <div class="summary-icon bg-gradient-danger">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="summary-content">
+                            <h6 class="mb-1">Rejected</h6>
+                            <h3 class="mb-1">{{ rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length }}</h3>
+                            <div class="progress mt-2">
+                                <div class="progress-bar bg-danger" role="progressbar" 
+                                     style="width: {{ (rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|selectattr('status', 'equalto', 'Rejected')|list|length / rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length * 100)|round|int if rfis|selectattr('assigned_to_id', 'equalto', current_user.id)|list|length > 0 else 0 }}%">
+                                </div>
+                            </div>
+                            <small class="text-muted">Not approved</small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,23 +235,22 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for rfi in rfis %}
         <div class="col">
-            <div class="card h-100 shadow-sm" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}">
+            <div class="card h-100 shadow-sm" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}" data-bs-toggle="modal" data-bs-target="#rfiModal" data-rfi-id="{{ rfi.id }}">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
                         <div class="fw-bold text-primary" style="font-size: 1.1rem;">{{ rfi.rfi_number }}</div>
                     </div>
-                    <div>
-                        <span class="badge bg-{{ 'success' if rfi.status == 'Accepted' else 'danger' if rfi.status == 'Rejected' else 'warning' if rfi.status == 'In Progress' else 'secondary' if rfi.status == 'Cancelled' else 'info' }}">
-                            {{ rfi.status or 'Open' }}
-                        </span>
+                    <div class="d-flex gap-2">
                         <span class="badge bg-{{ 'danger' if rfi.priority == 'Urgent' else 'warning' if rfi.priority == 'High' else 'info' if rfi.priority == 'Low' else 'secondary' }}">
                             {{ rfi.priority or 'Normal' }}
                         </span>
+                        <span class="badge bg-{{ 'success' if rfi.status == 'Accepted' else 'danger' if rfi.status == 'Rejected' else 'warning' if rfi.status == 'In Progress' else 'secondary' if rfi.status == 'Cancelled' else 'info' }}">
+                            {{ rfi.status or 'Open' }}
+                        </span>
                     </div>
                 </div>
-                
                 <div class="card-body">
-                    <p class="card-text text-truncate">{{ rfi.description }}</p>
+                    <p class="card-text text-truncate">{{ rfi.remarks }}</p>
                     
                     <div class="mb-3">
                         <p class="mb-1"><strong>Location:</strong> {{ rfi.location }}</p>
@@ -295,7 +342,7 @@
             </thead>
             <tbody>
                 {% for rfi in rfis|sort(attribute='inspection_date', reverse=false)|sort(attribute='inspection_time', reverse=false) %}
-                <tr class="rfi-row" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}">
+                <tr class="rfi-row" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}" data-bs-toggle="modal" data-bs-target="#rfiModal" data-rfi-id="{{ rfi.id }}">
                     <td class="fw-bold text-primary">{{ rfi.rfi_number }}</td>
                     <td>
                         <span class="badge bg-{{ 'success' if rfi.status == 'Accepted' else 'danger' if rfi.status == 'Rejected' else 'warning' if rfi.status == 'In Progress' else 'secondary' if rfi.status == 'Cancelled' else 'info' }}">
@@ -360,6 +407,78 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- RFI Details Modal -->
+<div class="modal fade" id="rfiModal" tabindex="-1" aria-labelledby="rfiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rfiModalLabel">RFI Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">RFI Number</h6>
+                        <p id="modal-rfi-number" class="fw-bold"></p>
+                        
+                        <h6 class="text-muted">Status</h6>
+                        <p id="modal-status"></p>
+                        
+                        <h6 class="text-muted">Priority</h6>
+                        <p id="modal-priority"></p>
+                        
+                        <h6 class="text-muted">Submitted By</h6>
+                        <p id="modal-submitted-by"></p>
+                        
+                        <h6 class="text-muted">Date Created</h6>
+                        <p id="modal-date-created"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Building Code</h6>
+                        <p id="modal-building-code"></p>
+                        
+                        <h6 class="text-muted">Discipline Code</h6>
+                        <p id="modal-discipline-code"></p>
+                        
+                        <h6 class="text-muted">Drawing Number</h6>
+                        <p id="modal-drawing-number"></p>
+                        
+                        <h6 class="text-muted">Inspection Date</h6>
+                        <p id="modal-inspection-date"></p>
+                        
+                        <h6 class="text-muted">Inspection Time</h6>
+                        <p id="modal-inspection-time"></p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-muted">Remarks</h6>
+                        <p id="modal-remarks" class="border rounded p-3 bg-light"></p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-muted">ITP Information</h6>
+                        <p id="modal-itp-info" class="border rounded p-3 bg-light"></p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6 class="text-muted">Assigned To</h6>
+                        <p id="modal-assigned-to" class="border rounded p-3 bg-light"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="modal-actions" class="me-auto">
+                    <!-- Action buttons will be added here dynamically -->
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -457,31 +576,61 @@
     .progress-bar {
         border-radius: 1rem;
     }
+    .rfi-card {
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .rfi-card:hover {
+        transform: translateY(-5px);
+    }
+    .rfi-row {
+        cursor: pointer;
+    }
+    .modal-body h6 {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .modal-body p {
+        margin-bottom: 0.5rem;
+    }
+    .summary-card .card-header {
+        border-bottom: 1px solid rgba(0,0,0,.125);
+    }
+    .summary-card .btn-link {
+        color: #6c757d;
+        text-decoration: none;
+    }
+    .summary-card .btn-link:hover {
+        color: #495057;
+    }
+    .summary-card .btn-link i {
+        transition: transform 0.3s ease;
+    }
+    .summary-card .btn-link.collapsed i {
+        transform: rotate(-90deg);
+    }
+    .summary-card .badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+    .summary-card .text-muted {
+        font-size: 0.75rem;
+    }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // View toggle functionality
     const cardViewBtn = document.getElementById('cardViewBtn');
     const listViewBtn = document.getElementById('listViewBtn');
-    const filterAssignedBtn = document.getElementById('filterAssignedBtn');
-    const filterOpenBtn = document.getElementById('filterOpenBtn');
     const cardView = document.getElementById('cardView');
     const listView = document.getElementById('listView');
-    const rfiRows = document.querySelectorAll('.rfi-row');
-    const rfiCards = document.querySelectorAll('.col');
-    let showAssignedOnly = false;
-    let showOpenOnly = false;
     
-    // Set initial active button
-    cardViewBtn.classList.add('active');
-    
-    // Toggle views
     cardViewBtn.addEventListener('click', function() {
         cardView.style.display = 'block';
         listView.style.display = 'none';
         cardViewBtn.classList.add('active');
         listViewBtn.classList.remove('active');
-        applyFilter();
     });
     
     listViewBtn.addEventListener('click', function() {
@@ -489,65 +638,133 @@ document.addEventListener('DOMContentLoaded', function() {
         listView.style.display = 'block';
         listViewBtn.classList.add('active');
         cardViewBtn.classList.remove('active');
-        applyFilter();
     });
-
-    // Toggle assigned filter
+    
+    // Filter functionality
+    const filterAssignedBtn = document.getElementById('filterAssignedBtn');
+    const filterOpenBtn = document.getElementById('filterOpenBtn');
+    const rfiCards = document.querySelectorAll('.rfi-card');
+    const rfiRows = document.querySelectorAll('.rfi-row');
+    
     filterAssignedBtn.addEventListener('click', function() {
-        showAssignedOnly = !showAssignedOnly;
-        filterAssignedBtn.classList.toggle('active', showAssignedOnly);
-        applyFilter();
-    });
-
-    // Toggle open/closed filter
-    filterOpenBtn.addEventListener('click', function() {
-        showOpenOnly = !showOpenOnly;
-        filterOpenBtn.classList.toggle('active', showOpenOnly);
-        applyFilter();
-    });
-
-    // Function to apply all filters
-    function applyFilter() {
-        const currentUserId = '{{ current_user.id }}';
-        
-        rfiRows.forEach(row => {
-            const assignedTo = row.getAttribute('data-assigned-to');
-            const status = row.getAttribute('data-status');
-            let shouldShow = true;
-
-            if (showAssignedOnly && assignedTo !== currentUserId) {
-                shouldShow = false;
-            }
-            if (showOpenOnly && status !== 'Open') {
-                shouldShow = false;
-            }
-
-            row.style.display = shouldShow ? '' : 'none';
-        });
-        
+        const userId = {{ current_user.id }};
         rfiCards.forEach(card => {
-            const assignedTo = card.querySelector('.card').getAttribute('data-assigned-to');
-            const status = card.querySelector('.card').getAttribute('data-status');
-            let shouldShow = true;
-
-            if (showAssignedOnly && assignedTo !== currentUserId) {
-                shouldShow = false;
-            }
-            if (showOpenOnly && status !== 'Open') {
-                shouldShow = false;
-            }
-
-            card.style.display = shouldShow ? '' : 'none';
+            card.style.display = card.dataset.assignedTo == userId ? 'block' : 'none';
         });
-    }
-
-    // Add click handlers for summary items
-    document.querySelectorAll('.summary-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const status = this.getAttribute('data-status');
-            // Implement filtering based on clicked status
-            // This will be implemented in the next step
+        rfiRows.forEach(row => {
+            row.style.display = row.dataset.assignedTo == userId ? 'table-row' : 'none';
         });
+    });
+    
+    filterOpenBtn.addEventListener('click', function() {
+        rfiCards.forEach(card => {
+            card.style.display = card.dataset.status === 'Open' ? 'block' : 'none';
+        });
+        rfiRows.forEach(row => {
+            row.style.display = row.dataset.status === 'Open' ? 'table-row' : 'none';
+        });
+    });
+    
+    // Modal functionality
+    const rfiModal = document.getElementById('rfiModal');
+    rfiModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const rfiId = button.getAttribute('data-rfi-id');
+        
+        // Fetch RFI details
+        fetch(`/api/rfi/${rfiId}`)
+            .then(response => response.json())
+            .then(rfi => {
+                // Update modal content
+                document.getElementById('modal-rfi-number').textContent = rfi.rfi_number;
+                document.getElementById('modal-status').innerHTML = `
+                    <span class="badge bg-${rfi.status === 'Accepted' ? 'success' : rfi.status === 'Rejected' ? 'danger' : rfi.status === 'In Progress' ? 'warning' : rfi.status === 'Cancelled' ? 'secondary' : 'info'}">
+                        ${rfi.status || 'Open'}
+                    </span>
+                `;
+                document.getElementById('modal-priority').textContent = rfi.priority;
+                document.getElementById('modal-submitted-by').textContent = rfi.submitted_by;
+                document.getElementById('modal-date-created').textContent = new Date(rfi.date_created).toLocaleDateString();
+                document.getElementById('modal-building-code').textContent = rfi.building_code;
+                document.getElementById('modal-discipline-code').textContent = rfi.discipline_code;
+                document.getElementById('modal-drawing-number').textContent = rfi.drawing_number;
+                document.getElementById('modal-inspection-date').textContent = rfi.inspection_date;
+                document.getElementById('modal-inspection-time').textContent = rfi.inspection_time;
+                document.getElementById('modal-remarks').textContent = rfi.remarks;
+                
+                // Update ITP info
+                const itpInfo = document.getElementById('modal-itp-info');
+                if (rfi.itp) {
+                    itpInfo.innerHTML = `
+                        <strong>ITP:</strong> ${rfi.itp.itp_number} - ${rfi.itp.description}<br>
+                        <strong>Phase:</strong> ${rfi.itp_phase.phase_code} - ${rfi.itp_phase.activity_name}
+                    `;
+                } else {
+                    itpInfo.textContent = 'No ITP assigned';
+                }
+                
+                // Update assigned to info
+                const assignedTo = document.getElementById('modal-assigned-to');
+                if (rfi.assigned_to) {
+                    assignedTo.innerHTML = `
+                        <div class="d-flex align-items-center">
+                            ${rfi.assigned_to.photo ? `
+                                <img src="/static/uploads/photos/${rfi.assigned_to.photo}" 
+                                     alt="${rfi.assigned_to.name} photo" 
+                                     class="rounded-circle me-2" 
+                                     style="width: 40px; height: 40px; object-fit: cover;"
+                                     onerror="this.onerror=null; this.src='/static/img/placeholder.png';">
+                            ` : `
+                                <div class="rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+                                     style="width: 40px; height: 40px; background: #f8f9fa;">
+                                    <i class="fas fa-user text-muted"></i>
+                                </div>
+                            `}
+                            <div>
+                                <strong>${rfi.assigned_to.name || 'No Name'} ${rfi.assigned_to.surname || ''}</strong><br>
+                                <small class="text-muted">${rfi.assigned_to.username}</small>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    assignedTo.textContent = 'Not assigned';
+                }
+                
+                // Update action buttons
+                const actionsDiv = document.getElementById('modal-actions');
+                actionsDiv.innerHTML = '';
+                
+                if (rfi.can_be_accepted_rejected_by) {
+                    actionsDiv.innerHTML = `
+                        <form action="/rfi/${rfi.id}/accept" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Accept
+                            </button>
+                        </form>
+                        <form action="/rfi/${rfi.id}/reject" method="POST" class="d-inline ms-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        </form>
+                    `;
+                }
+            });
+    });
+    
+    // Handle summary card collapse
+    const summaryCards = document.querySelectorAll('.summary-card');
+    summaryCards.forEach(card => {
+        const button = card.querySelector('.btn-link');
+        const collapse = card.querySelector('.collapse');
+        
+        button.addEventListener('click', function() {
+            this.classList.toggle('collapsed');
+        });
+        
+        // Initialize button state
+        if (!collapse.classList.contains('show')) {
+            button.classList.add('collapsed');
+        }
     });
 });
 </script>

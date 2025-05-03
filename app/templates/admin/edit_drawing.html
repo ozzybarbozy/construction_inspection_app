@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Drawing{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('admin.list_drawings') }}" class="btn btn-outline-secondary me-3">
+                <i class="fas fa-arrow-left"></i> Back to Drawings
+            </a>
+            <h1 class="mb-0">
+                <i class="fas fa-edit me-2"></i>Edit Drawing
+            </h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="drawing_number" class="form-label">Drawing Number</label>
+                            <input type="text" class="form-control" id="drawing_number" name="drawing_number" value="{{ drawing.drawing_number }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="building_code" class="form-label">Building Code</label>
+                            <select class="form-control" id="building_code" name="building_code" required>
+                                <option value="">Select a Building</option>
+                                {% for building in buildings %}
+                                <option value="{{ building.code }}" {% if building.code == drawing.building_code %}selected{% endif %}>
+                                    {{ building.name }} ({{ building.code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="discipline_code" class="form-label">Discipline Code</label>
+                            <select class="form-control" id="discipline_code" name="discipline_code" required>
+                                <option value="">Select a Discipline</option>
+                                {% for discipline in disciplines %}
+                                <option value="{{ discipline.code }}" {% if discipline.code == drawing.discipline_code %}selected{% endif %}>
+                                    {{ discipline.name }} ({{ discipline.code }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="sequence_number" class="form-label">Sequence Number</label>
+                            <input type="number" class="form-control" id="sequence_number" name="sequence_number" value="{{ drawing.sequence_number }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="revision_number" class="form-label">Revision Number</label>
+                            <input type="text" class="form-control" id="revision_number" name="revision_number" value="{{ drawing.revision_number }}" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

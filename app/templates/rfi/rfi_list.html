@@ -1,0 +1,7 @@
+                {% if current_user.is_authenticated %}
+                    {% if current_user.user_role and current_user.user_role.name == 'Admin' %}
+                    <a href="{{ url_for('main.add_rfi') }}" class="btn btn-outline-success">
+                        <i class="fas fa-plus"></i> Submit New RFI
+                    </a>
+                    {% endif %}
+                {% endif %} 

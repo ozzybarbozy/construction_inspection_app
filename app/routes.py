@@ -113,9 +113,8 @@ def add_rfi():
     if form.validate_on_submit():
         try:
             # Check if user is an Admin or Contractor
-            is_admin = current_user.role_obj and current_user.role_obj.name == 'Admin'
-            is_contractor = (current_user.role_obj and current_user.role_obj.name == 'Contractor') or \
-                          (current_user.stakeholder and current_user.stakeholder.role == 'Contractor')
+            is_admin = current_user.user_role and current_user.user_role.name == 'Admin'
+            is_contractor = current_user.stakeholder and current_user.stakeholder.role == 'Contractor'
             
             if not (is_admin or is_contractor):
                 flash('Only Admins and Contractors can submit RFIs.', 'error')
@@ -130,10 +129,13 @@ def add_rfi():
                 form.building_code.data
             )
             
+            # Convert inspection_time string to time object
+            inspection_time = datetime.strptime(form.inspection_time.data, '%H:%M').time()
+            
             # Create RFI object
             rfi = RFI(
                 rfi_number=rfi_number,
-                description=form.remarks.data,
+                remarks=form.remarks.data,
                 submitted_by=current_user.username,
                 status='Open',
                 priority=form.priority.data,
@@ -144,7 +146,7 @@ def add_rfi():
                 discipline_code=form.discipline_code.data,
                 drawing_number=form.drawing_number.data,
                 inspection_date=form.inspection_date.data,
-                inspection_time=form.inspection_time.data
+                inspection_time=inspection_time
             )
             
             # Debug print RFI object
@@ -177,7 +179,9 @@ def add_rfi():
                          itps=ITP.query.all(),
                          phases=phases_data,
                          building_disciplines=building_disciplines,
-                         building_discipline_drawings=building_discipline_drawings)
+                         building_discipline_drawings=building_discipline_drawings,
+                         now=datetime.now(),
+                         timedelta=timedelta)
 
 @main.route('/delete/<int:id>')
 @login_required
@@ -202,7 +206,7 @@ def edit_rfi(id):
                 flash(f'RFIs can only be submitted between {settings.start_time.strftime("%H:%M")} and {settings.end_time.strftime("%H:%M")}.', 'error')
                 return redirect(url_for('main.edit_rfi', id=id))
 
-        rfi.description = request.form['description']
+        rfi.remarks = request.form['remarks']
         rfi.submitted_by = request.form['submitted_by']
         rfi.priority = request.form['priority']
         rfi.itp_id = request.form.get('itp_id')
@@ -417,3 +421,38 @@ def get_drawings(building_code, discipline_code):
         'drawing_number': d.drawing_number,
         'revision_number': d.revision_number
     } for d in drawings])
+
+@main.route('/api/rfi/<int:id>')
+@login_required
+def get_rfi(id):
+    rfi = RFI.query.get_or_404(id)
+    return jsonify({
+        'id': rfi.id,
+        'rfi_number': rfi.rfi_number,
+        'status': rfi.status,
+        'priority': rfi.priority,
+        'submitted_by': rfi.submitted_by,
+        'date_created': rfi.date_created.isoformat(),
+        'building_code': rfi.building_code,
+        'discipline_code': rfi.discipline_code,
+        'drawing_number': rfi.drawing_number,
+        'inspection_date': rfi.inspection_date.strftime('%Y-%m-%d') if rfi.inspection_date else None,
+        'inspection_time': rfi.inspection_time.strftime('%H:%M') if rfi.inspection_time else None,
+        'remarks': rfi.remarks,
+        'itp': {
+            'itp_number': rfi.itp.itp_number,
+            'description': rfi.itp.description
+        } if rfi.itp else None,
+        'itp_phase': {
+            'phase_code': rfi.itp_phase.phase_code,
+            'activity_name': rfi.itp_phase.activity_name
+        } if rfi.itp_phase else None,
+        'assigned_to': {
+            'id': rfi.assigned_to.id,
+            'name': rfi.assigned_to.name,
+            'surname': rfi.assigned_to.surname,
+            'username': rfi.assigned_to.username,
+            'photo': rfi.assigned_to.photo
+        } if rfi.assigned_to else None,
+        'can_be_accepted_rejected_by': rfi.can_be_accepted_rejected_by(current_user)
+    })

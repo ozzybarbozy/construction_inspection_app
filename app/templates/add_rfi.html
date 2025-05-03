@@ -17,31 +17,31 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    {{ form.building_code.label(class="form-label") }}
+                                    <label for="building_code" class="form-label">Building Code <span class="text-danger">*</span></label>
                                     {{ form.building_code(class="form-select", id="building-select") }}
                                     <small class="text-muted">Select the relevant building code</small>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    {{ form.discipline_code.label(class="form-label") }}
+                                    <label for="discipline_code" class="form-label">Discipline Code <span class="text-danger">*</span></label>
                                     {{ form.discipline_code(class="form-select", id="discipline-select", disabled=True) }}
                                     <small class="text-muted">Select the relevant discipline code</small>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    {{ form.drawing_number.label(class="form-label") }}
+                                    <label for="drawing_number" class="form-label">Drawing Number <span class="text-danger">*</span></label>
                                     {{ form.drawing_number(class="form-select", id="drawing-select", disabled=True) }}
                                     <small class="text-muted">Select the relevant drawing number</small>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    {{ form.itp.label(class="form-label") }}
+                                    <label for="itp" class="form-label">Inspection and Test Plan <span class="text-danger">*</span></label>
                                     {{ form.itp(class="form-select", id="itp-select") }}
                                     <small class="text-muted">Select the relevant Inspection and Test Plan</small>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    {{ form.itp_phase.label(class="form-label") }}
+                                    <label for="itp_phase" class="form-label">Inspection Phase <span class="text-danger">*</span></label>
                                     {{ form.itp_phase(class="form-select", id="phase-select", disabled=True) }}
                                     <small class="text-muted">Select the specific phase of the ITP</small>
                                 </div>
@@ -49,36 +49,35 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            {{ form.inspection_date.label(class="form-label") }}
-                                            {{ form.inspection_date(class="form-control") }}
+                                            <label for="inspection_date" class="form-label">Inspection Date <span class="text-danger">*</span></label>
+                                            {{ form.inspection_date(class="form-control", type="date") }}
                                             <small class="text-muted">Select a future date for inspection</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            {{ form.inspection_time.label(class="form-label") }}
-                                            {{ form.inspection_time(class="form-control") }}
-                                            <small class="text-muted">Between 09:00 and 17:00</small>
+                                            <label for="inspection_time" class="form-label">Inspection Time <span class="text-danger">*</span></label>
+                                            {{ form.inspection_time(class="form-select") }}
+                                            <small class="text-muted">Between 09:00 and 17:30 in 30-minute intervals</small>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    {{ form.priority.label(class="form-label") }}
+                                    <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
                                     {{ form.priority(class="form-select") }}
                                     <small class="text-muted">Select the priority level of the RFI</small>
                                 </div>
                                 
                                 <div class="mb-3">
-                                    {{ form.assigned_to.label(class="form-label") }}
+                                    <label for="assigned_to" class="form-label">Assigned To <span class="text-danger">*</span></label>
                                     {{ form.assigned_to(class="form-select") }}
-                                    <small class="text-muted">Optional: Assign the RFI to a specific user</small>
+                                    <small class="text-muted">Assign the RFI to a specific user</small>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    {{ form.remarks.label(class="form-label") }}
-                                    {{ form.remarks(class="form-control", rows="3") }}
-                                    <small class="text-muted">Provide detailed information about the issue or question</small>
+                                <div class="form-group">
+                                    <label for="remarks">Remarks</label>
+                                    {{ form.remarks(class="form-control", rows="4") }}
                                 </div>
                             </div>
                         </div>
@@ -186,19 +185,6 @@ document.getElementById('itp-select').addEventListener('change', function() {
     } else {
         phaseSelect.disabled = true;
         phaseSelect.innerHTML = '<option value="">-- Select Phase --</option>';
-    }
-});
-
-// Form submission time validation
-document.querySelector('form').addEventListener('submit', function(e) {
-    const inspectionTime = document.querySelector('input[name="inspection_time"]').value;
-    const time = new Date(`2000-01-01T${inspectionTime}`);
-    const minTime = new Date('2000-01-01T09:00');
-    const maxTime = new Date('2000-01-01T17:00');
-    
-    if (time < minTime || time > maxTime) {
-        e.preventDefault();
-        alert('Inspection time must be between 09:00 and 17:00');
     }
 });
 </script>

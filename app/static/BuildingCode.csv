@@ -1,0 +1,66 @@
+﻿BuildingCode;BuildingName
+GN00;General
+IN00;Infrastructure
+MB00;Mobilisation
+ES01;ESB-01-AP Storage Building
+ES02;ESB-02-AP Storage Handling Building
+ES03;ESB-03-Fuse Storage
+ES04;ESB-04-Warhead Storage Building
+ES05;ESB-05-Ammunition Storage Building-1
+ES06;ESB-06-Ammunition Storage Building-2
+ES07;ESB-07-Ammunition Storage Building-3
+ES08;ESB-08-Ammunition Storage Building-4
+ES09;ESB-09-Storage for Destruction
+EW01;EWB-01-Hammer Mill Building
+EW02;EWB-02-AP Storage and Conditioning Building
+EW03;EWB-03-Mixer Building
+EW04;EWB-04-Premix and Mixbowl Cleaning Building
+EW05;EWB-05-Propellant Casting Building
+EW06;EWB-06-Propellant Mandrel Disassembly Building
+EW07;EWB-07-X-ray and Quality Control Building
+EW08;EWB-08-Laboratory Building
+EW09;EWB-09-Small Scale Propellant Assembly Firing Test
+EW10;"EWB-10-Conditioning Building 
+(Small Scale Propellant Assembly)"
+EW11;EWB-11-Warhead Filling and Assembly Building
+EW12;EWB-12-Warhead Press Building
+EW13;EWB-13-Final Assembly Building
+GF01;GFB-01-Main Entrance Check Point
+GF02;GFB-02-Main Entrance Building (pedestrian)
+GF03;GFB-03-Management_Administrative_R&D Office 
+GF04;GFB-04-Cafeteria (Dining Hall Building)
+GF05;GFB-05-Health Center
+GF06;GFB-06-Data Center
+GF07;GFB-07-Facility Maintanance Office and Workshop
+GF08;GFB-08-Fire Station
+GF09;GFB-09-Heating Plant
+GF10;GFB-10-Energetic Area Entrance Building
+GF11;GFB-11-Security Tower (8 units)
+GF12;GFB-12-Main Transformer Building
+G13A;GFB-13A-Transformer Building-A
+G13B;GFB-13B-Transformer Building-B
+G13C;GFB-13C-Transformer Building-C
+G13D;GFB-13D-Transformer Building-D
+G13E;GFB-13E-Transformer Building-E
+G13F;GFB-13F-Transformer Building-F
+G13G;GFB-13G-Transformer Building-G
+G13H;GFB-13H-Transformer Building-H
+G13I;GFB-13I-Transformer Building-I
+GF14;GFB-14-Water Tank Building (Potable water)
+GF15;GFB-15-Fire Water Tank Building
+GF16;GFB-16-Waste Water Purification Plant 
+GF17;GFB-17-Industrial Waste Water Purification Plant 
+GF18;GFB-18-Temporary Waste Holding Area 
+GF19;GFB-19-Main Entrance Logistics
+IS01;ISB-01-Mixbowl_Mandrel and Tool Storage
+IS02;"ISB-02-Inert Material Storage Building
+(Incoming Inspection and Calibration)"
+IS03;ISB-03-Chemical Material Storage Building
+IW01;IWB-01-Motor Case Production Building
+IW1A;IWB-01A-Motor Case Preform Production Building
+IW02;IWB-02-Motor Case Insulation and Composite
+IW03;IWB-03-Spray Application Building
+IW04;IWB-04-Control Building
+IW05;IWB-05-Small Scale Propellant Assembly Test Control
+IW06;IWB-06-Propellant Employee Office Building
+IW07;IWB-07-Warhead Employee Office Building

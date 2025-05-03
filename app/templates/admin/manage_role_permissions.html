@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Role Permissions{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-0">Manage Permissions for Role: 
+                            <span class="badge" style="background-color: {{ role.color }}; color: white; padding: 0.5em 1em;">
+                                {{ role.name }}
+                            </span>
+                        </h5>
+                        <small class="text-muted">{{ role.description }}</small>
+                    </div>
+                    <a href="{{ url_for('admin.manage_roles') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Roles
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="permissionsForm">
+                        <div class="row">
+                            {% if system_permissions %}
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-danger text-white">
+                                        <h6 class="mb-0">System Permissions</h6>
+                                        <small>These permissions are system-critical</small>
+                                    </div>
+                                    <div class="card-body">
+                                        {% for permission in system_permissions %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="permissions[]" 
+                                                   value="{{ permission.id }}" 
+                                                   id="permission{{ permission.id }}"
+                                                   {% if permission in role.permissions %}checked{% endif %}>
+                                            <label class="form-check-label" for="permission{{ permission.id }}">
+                                                {{ permission.name }}
+                                                <small class="text-muted d-block">{{ permission.description }}</small>
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if regular_permissions %}
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">Regular Permissions</h6>
+                                        <small>These permissions can be freely assigned</small>
+                                    </div>
+                                    <div class="card-body">
+                                        {% for permission in regular_permissions %}
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="permissions[]" 
+                                                   value="{{ permission.id }}" 
+                                                   id="permission{{ permission.id }}"
+                                                   {% if permission in role.permissions %}checked{% endif %}>
+                                            <label class="form-check-label" for="permission{{ permission.id }}">
+                                                {{ permission.name }}
+                                                <small class="text-muted d-block">{{ permission.description }}</small>
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Permissions
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('permissionsForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %} 

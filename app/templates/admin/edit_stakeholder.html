@@ -27,8 +27,14 @@
                             <label for="role" class="form-label">
                                 <i class="fas fa-user-tag me-1"></i>Role
                             </label>
-                            <input type="text" class="form-control" id="role" name="role" 
-                                   value="{{ stakeholder.role }}" required>
+                            <select class="form-select" id="role" name="role" required>
+                                <option value="">Select a role</option>
+                                <option value="Employer" {% if stakeholder.stakeholder_role_obj and stakeholder.stakeholder_role_obj.name == 'Employer' %}selected{% endif %}>Employer</option>
+                                <option value="Engineer" {% if stakeholder.stakeholder_role_obj and stakeholder.stakeholder_role_obj.name == 'Engineer' %}selected{% endif %}>Engineer</option>
+                                <option value="Contractor" {% if stakeholder.stakeholder_role_obj and stakeholder.stakeholder_role_obj.name == 'Contractor' %}selected{% endif %}>Contractor</option>
+                                <option value="Subcontractor" {% if stakeholder.stakeholder_role_obj and stakeholder.stakeholder_role_obj.name == 'Subcontractor' %}selected{% endif %}>Subcontractor</option>
+                                <option value="Third Party" {% if stakeholder.stakeholder_role_obj and stakeholder.stakeholder_role_obj.name == 'Third Party' %}selected{% endif %}>Third Party</option>
+                            </select>
                         </div>
 
                         <div class="mb-3">

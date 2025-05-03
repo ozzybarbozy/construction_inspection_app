@@ -57,10 +57,10 @@
                 <div class="mb-3">
                     <label class="form-label">Role</label>
                     <select name="role" class="form-select" required>
-                        <option value="viewer">Viewer</option>
-                        <option value="inspector">Inspector</option>
-                        <option value="manager">Manager</option>
-                        <option value="admin">Admin</option>
+                        <option value="">-- Select Role --</option>
+                        {% for role in roles %}
+                            <option value="{{ role.id }}">{{ role.name }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="mb-3">
@@ -71,6 +71,16 @@
                             <option value="{{ stakeholder.id }}">{{ stakeholder.name }} ({{ stakeholder.role }})</option>
                         {% endfor %}
                     </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Discipline</label>
+                    <select name="discipline_code" class="form-select">
+                        <option value="">-- No Discipline --</option>
+                        {% for discipline in disciplines %}
+                            <option value="{{ discipline.code }}">{{ discipline.code }} - {{ discipline.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="text-muted">Optional: Select a discipline if the user should be associated with one</small>
                 </div>
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-success">Create User</button>

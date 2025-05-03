@@ -13,6 +13,12 @@ A Flask-based web application for managing construction inspection processes, in
   - Create, edit, and delete RFIs
   - Track RFI status and details
   - Location-based organization
+  - Interactive card and list views
+  - Detailed RFI modal with all information
+  - Collapsible summary cards with key metrics
+  - Filter RFIs by assigned user and status
+  - Priority-based color coding
+  - Real-time status updates
 
 - **ITP Management**
   - Create and manage Inspection Test Plans
@@ -24,6 +30,30 @@ A Flask-based web application for managing construction inspection processes, in
   - Add and manage stakeholders
   - Assign stakeholders to users
   - Track stakeholder roles and responsibilities
+
+## Dashboard Features
+
+- **Overall RFI Summary**
+  - Total RFI count with progress bar
+  - Open RFIs requiring attention
+  - Accepted RFIs successfully resolved
+  - Rejected RFIs not approved
+  - Collapsible view with key metrics always visible
+
+- **Your RFI Summary**
+  - RFIs assigned to you
+  - Open RFIs requiring your attention
+  - Your accepted RFIs
+  - Your rejected RFIs
+  - Collapsible view with key metrics always visible
+
+- **Interactive Views**
+  - Card view for visual overview
+  - List view for detailed information
+  - Click any RFI to view full details in modal
+  - Filter options for assigned and open RFIs
+  - Priority indicators with color coding
+  - Status badges for quick reference
 
 ## Prerequisites
 
@@ -116,6 +146,15 @@ construction_inspection_app/
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Create a Pull Request
 
+## Developer
+
+This application was developed by Oğuz Can Özgenç as part of a construction inspection management system. The project aims to streamline the RFI (Request for Information) process and improve communication between stakeholders in construction projects.
+
+### Contact
+
+- GitHub: [ozzybarbozy](https://github.com/ozzybarbozy)
+- Email: [oguzcan.ozgenc@gmail.com](mailto:oguzcan.ozgenc@gmail.com)
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -124,4 +163,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Flask framework
 - Bootstrap for UI components
-- SQLAlchemy for database management 
+- SQLAlchemy for database management
+- Font Awesome for icons 

@@ -235,58 +235,60 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for rfi in rfis %}
         <div class="col">
-            <div class="card h-100 shadow-sm" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}" data-bs-toggle="modal" data-bs-target="#rfiModal" data-rfi-id="{{ rfi.id }}">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="fw-bold text-primary" style="font-size: 1.1rem;">{{ rfi.rfi_number }}</div>
+            <div class="card h-100 shadow-sm rfi-card" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}">
+                <div class="card-content" data-bs-toggle="modal" data-bs-target="#rfiModal" data-rfi-id="{{ rfi.id }}" style="cursor: pointer;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-primary" style="font-size: 1.1rem;">{{ rfi.rfi_number }}</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-{{ 'danger' if rfi.priority == 'Urgent' else 'warning' if rfi.priority == 'High' else 'info' if rfi.priority == 'Low' else 'secondary' }}">
+                                {{ rfi.priority or 'Normal' }}
+                            </span>
+                            <span class="badge bg-{{ 'success' if rfi.status == 'Accepted' else 'danger' if rfi.status == 'Rejected' else 'warning' if rfi.status == 'In Progress' else 'secondary' if rfi.status == 'Cancelled' else 'info' }}">
+                                {{ rfi.status or 'Open' }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="d-flex gap-2">
-                        <span class="badge bg-{{ 'danger' if rfi.priority == 'Urgent' else 'warning' if rfi.priority == 'High' else 'info' if rfi.priority == 'Low' else 'secondary' }}">
-                            {{ rfi.priority or 'Normal' }}
-                        </span>
-                        <span class="badge bg-{{ 'success' if rfi.status == 'Accepted' else 'danger' if rfi.status == 'Rejected' else 'warning' if rfi.status == 'In Progress' else 'secondary' if rfi.status == 'Cancelled' else 'info' }}">
-                            {{ rfi.status or 'Open' }}
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p class="card-text text-truncate">{{ rfi.remarks }}</p>
-                    
-                    <div class="mb-3">
-                        <p class="mb-1"><strong>Location:</strong> {{ rfi.location }}</p>
-                        {% if rfi.itp %}
-                        <p class="mb-1"><strong>ITP:</strong> {{ rfi.itp.itp_number }} - {{ rfi.itp.activity_name }}</p>
-                        {% endif %}
-                        {% if rfi.itp_phase %}
-                        <p class="mb-1"><strong>Phase:</strong> {{ rfi.itp_phase.phase_code or '' }} - {{ rfi.itp_phase.activity_name }}</p>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <p class="mb-1"><strong>Inspection Date:</strong> {{ rfi.inspection_date.strftime('%Y-%m-%d') if rfi.inspection_date else 'Not set' }}</p>
-                        <p class="mb-1"><strong>Inspection Time:</strong> {{ rfi.inspection_time.strftime('%H:%M') if rfi.inspection_time else 'Not set' }}</p>
-                        <p class="mb-1">
-                            <strong>Assigned To:</strong>
-                            {% if rfi.assigned_to %}
-                                <div class="d-flex align-items-center">
-                                    {% if rfi.assigned_to.photo %}
-                                        <img src="{{ url_for('static', filename='uploads/photos/' + rfi.assigned_to.photo) }}" 
-                                             alt="{{ rfi.assigned_to.name }} photo" 
-                                             class="rounded-circle me-2" 
-                                             style="width: 30px; height: 30px; object-fit: cover;"
-                                             onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
-                                    {% else %}
-                                        <div class="rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
-                                             style="width: 30px; height: 30px; background: #f8f9fa;">
-                                            <i class="fas fa-user text-muted"></i>
-                                        </div>
-                                    {% endif %}
-                                    <span>{{ rfi.assigned_to.name or 'No Name' }} {{ rfi.assigned_to.surname or '' }}</span>
-                                </div>
-                            {% else %}
-                                Not assigned
+                    <div class="card-body">
+                        <p class="card-text text-truncate">{{ rfi.remarks }}</p>
+                        
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Location:</strong> {{ rfi.location }}</p>
+                            {% if rfi.itp %}
+                            <p class="mb-1"><strong>ITP:</strong> {{ rfi.itp.itp_number }} - {{ rfi.itp.activity_name }}</p>
                             {% endif %}
-                        </p>
+                            {% if rfi.itp_phase %}
+                            <p class="mb-1"><strong>Phase:</strong> {{ rfi.itp_phase.phase_code or '' }} - {{ rfi.itp_phase.activity_name }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Inspection Date:</strong> {{ rfi.inspection_date.strftime('%Y-%m-%d') if rfi.inspection_date else 'Not set' }}</p>
+                            <p class="mb-1"><strong>Inspection Time:</strong> {{ rfi.inspection_time.strftime('%H:%M') if rfi.inspection_time else 'Not set' }}</p>
+                            <p class="mb-1">
+                                <strong>Assigned To:</strong>
+                                {% if rfi.assigned_to %}
+                                    <div class="d-flex align-items-center">
+                                        {% if rfi.assigned_to.photo %}
+                                            <img src="{{ url_for('static', filename='uploads/photos/' + rfi.assigned_to.photo) }}" 
+                                                 alt="{{ rfi.assigned_to.name }} photo" 
+                                                 class="rounded-circle me-2" 
+                                                 style="width: 30px; height: 30px; object-fit: cover;"
+                                                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/placeholder.png') }}';">
+                                        {% else %}
+                                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center me-2" 
+                                                 style="width: 30px; height: 30px; background: #f8f9fa;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                        <span>{{ rfi.assigned_to.name or 'No Name' }} {{ rfi.assigned_to.surname or '' }}</span>
+                                    </div>
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </p>
+                        </div>
                     </div>
                 </div>
                 
@@ -615,6 +617,15 @@
     }
     .summary-card .text-muted {
         font-size: 0.75rem;
+    }
+    .card-content {
+        flex: 1;
+    }
+    .card-content:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    .rfi-details:hover {
+        background-color: rgba(0, 0, 0, 0.02);
     }
 </style>
 

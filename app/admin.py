@@ -613,12 +613,10 @@ def edit_stakeholder(stakeholder_id):
 def serve_logo(filename):
     return send_from_directory(os.path.join(current_app.static_folder, 'uploads', 'logos'), filename)
 
-@admin.route('/admin/permissions')
+@admin.route('/admin/permissions', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def manage_permissions():
-    if not current_user.has_permission('manage_permissions'):
-        return "Unauthorized", 403
-    
     # Get system-critical permissions
     system_permissions = Permission.query.filter(
         Permission.code.in_(['manage_system', 'manage_permissions', 'manage_roles', 'manage_users'])
@@ -629,130 +627,152 @@ def manage_permissions():
         ~Permission.code.in_(['manage_system', 'manage_permissions', 'manage_roles', 'manage_users'])
     ).all()
     
+    if request.method == 'POST':
+        try:
+            print(f"Received POST request with form data: {request.form}")
+            print(f"Form keys: {list(request.form.keys())}")
+            
+            if not request.form.get('csrf_token'):
+                flash('Invalid request', 'danger')
+                return redirect(url_for('admin.manage_permissions'))
+            
+            action = request.form.get('action')
+            print(f"Action: {action}")
+            
+            if action == 'delete':
+                permission_id = request.form.get('id')
+                print(f"Permission ID from form: {permission_id}")
+                print(f"Permission ID type: {type(permission_id)}")
+                
+                if not permission_id:
+                    flash('Permission ID is required for deletion', 'danger')
+                    return redirect(url_for('admin.manage_permissions'))
+                
+                try:
+                    permission_id = int(permission_id)
+                except (TypeError, ValueError):
+                    flash('Invalid permission ID', 'danger')
+                    return redirect(url_for('admin.manage_permissions'))
+                
+                permission = Permission.query.get_or_404(permission_id)
+                print(f"Found permission: {permission}")
+                
+                # Check if this is a system permission
+                if permission.code in ['manage_system', 'manage_permissions', 'manage_roles', 'manage_users']:
+                    flash('Cannot delete system permissions', 'danger')
+                    return redirect(url_for('admin.manage_permissions'))
+                
+                db.session.delete(permission)
+                db.session.commit()
+                flash('Permission deleted successfully', 'success')
+                
+            else:  # Default to create new permission
+                name = request.form.get('name')
+                code = request.form.get('code')
+                description = request.form.get('description')
+                permission_type = request.form.get('permission_type', 'user')  # Default to 'user' if not specified
+                
+                if not name or not code:
+                    flash('Name and code are required', 'danger')
+                    return redirect(url_for('admin.manage_permissions'))
+                
+                # Check if code is already taken
+                if Permission.query.filter_by(code=code).first():
+                    flash('Permission code already exists', 'danger')
+                    return redirect(url_for('admin.manage_permissions'))
+                
+                permission = Permission(
+                    name=name,
+                    code=code,
+                    description=description,
+                    permission_type=permission_type
+                )
+                db.session.add(permission)
+                db.session.commit()
+                flash('Permission created successfully', 'success')
+                
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error processing request: {str(e)}")
+            print(f"Error type: {type(e)}")
+            flash(f'Error processing request: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin.manage_permissions'))
+    
     return render_template('admin/manage_permissions.html', 
                          system_permissions=system_permissions,
                          manageable_permissions=manageable_permissions)
 
-@admin.route('/admin/permissions/add', methods=['POST'])
-@login_required
-def add_permission():
-    if not current_user.has_permission('manage_permissions'):
-        return "Unauthorized", 403
-    
-    name = request.form.get('name')
-    code = request.form.get('code')
-    description = request.form.get('description')
-    
-    if not name or not code:
-        flash('Name and code are required', 'danger')
-        return redirect(url_for('admin.manage_permissions'))
-    
-    # Check if code is already taken
-    if Permission.query.filter_by(code=code).first():
-        flash('Permission code already exists', 'danger')
-        return redirect(url_for('admin.manage_permissions'))
-    
-    permission = Permission(name=name, code=code, description=description)
-    db.session.add(permission)
-    db.session.commit()
-    
-    flash('Permission created successfully', 'success')
-    return redirect(url_for('admin.manage_permissions'))
-
 @admin.route('/admin/permissions/<int:permission_id>/edit', methods=['POST'])
 @login_required
+@admin_required
 def edit_permission(permission_id):
-    if not current_user.has_permission('manage_permissions'):
-        return "Unauthorized", 403
+    try:
+        if not request.form.get('csrf_token'):
+            flash('Invalid request', 'danger')
+            return redirect(url_for('admin.manage_permissions'))
+            
+        print(f"Received edit request for permission {permission_id}")
+        print(f"Form data: {request.form}")
+        
+        permission = Permission.query.get_or_404(permission_id)
+        
+        # Check if this is a system permission
+        if permission.code in ['manage_system', 'manage_permissions', 'manage_roles', 'manage_users']:
+            flash('Cannot edit system permissions', 'danger')
+            return redirect(url_for('admin.manage_permissions'))
+        
+        name = request.form.get('name')
+        code = request.form.get('code')
+        description = request.form.get('description')
+        permission_type = request.form.get('permission_type')
+        
+        print(f"New values - name: {name}, code: {code}, description: {description}, type: {permission_type}")
+        
+        if not name or not code or not permission_type:
+            flash('Name, code, and permission type are required', 'danger')
+            return redirect(url_for('admin.manage_permissions'))
+        
+        # Check if code is already taken by another permission
+        existing_permission = Permission.query.filter_by(code=code).first()
+        if existing_permission and existing_permission.id != permission_id:
+            flash('Permission code already exists', 'danger')
+            return redirect(url_for('admin.manage_permissions'))
+        
+        permission.name = name
+        permission.code = code
+        permission.description = description
+        permission.permission_type = permission_type
+        db.session.commit()
+        
+        flash('Permission updated successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error updating permission: {str(e)}', 'danger')
     
-    permission = Permission.query.get_or_404(permission_id)
-    
-    # Check if this is a system permission
-    if permission.code in ['manage_system', 'manage_permissions', 'manage_roles', 'manage_users']:
-        flash('Cannot edit system permissions', 'danger')
-        return redirect(url_for('admin.manage_permissions'))
-    
-    name = request.form.get('name')
-    code = request.form.get('code')
-    description = request.form.get('description')
-    
-    if not name or not code:
-        flash('Name and code are required', 'danger')
-        return redirect(url_for('admin.manage_permissions'))
-    
-    # Check if code is already taken by another permission
-    existing_permission = Permission.query.filter_by(code=code).first()
-    if existing_permission and existing_permission.id != permission_id:
-        flash('Permission code already exists', 'danger')
-        return redirect(url_for('admin.manage_permissions'))
-    
-    permission.name = name
-    permission.code = code
-    permission.description = description
-    db.session.commit()
-    
-    flash('Permission updated successfully', 'success')
     return redirect(url_for('admin.manage_permissions'))
 
 @admin.route('/admin/permissions/<int:permission_id>/delete', methods=['POST'])
 @login_required
+@admin_required
 def delete_permission(permission_id):
-    if not current_user.has_permission('manage_permissions'):
-        return "Unauthorized", 403
-    
-    permission = Permission.query.get_or_404(permission_id)
-    
-    # Check if this is a system permission
-    if permission.code in ['manage_system', 'manage_permissions', 'manage_roles', 'manage_users']:
-        flash('Cannot delete system permissions', 'danger')
-        return redirect(url_for('admin.manage_permissions'))
-    
-    db.session.delete(permission)
-    db.session.commit()
-    
-    flash('Permission deleted successfully', 'success')
-    return redirect(url_for('admin.manage_permissions'))
-
-@admin.route('/admin/roles/<int:role_id>/permissions', methods=['GET', 'POST'])
-@login_required
-def manage_role_permissions(role_id):
-    if not current_user.user_role or current_user.user_role.name != 'Admin':
-        return "Unauthorized", 403
-    
-    role = UserRole.query.get_or_404(role_id)
-    
-    if request.method == 'POST':
-        try:
-            permission_ids = request.form.getlist('permissions[]')
-            
-            # Update permissions
-            role.permissions = []
-            for permission_id in permission_ids:
-                permission = Permission.query.get(permission_id)
-                if permission:
-                    role.permissions.append(permission)
-            
-            db.session.commit()
-            flash('Role permissions updated successfully', 'success')
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating role permissions: {str(e)}', 'danger')
+    try:
+        permission = Permission.query.get_or_404(permission_id)
         
-        return redirect(url_for('admin.manage_role_permissions', role_id=role_id))
+        # Check if this is a system permission
+        if permission.code in ['manage_system', 'manage_permissions', 'manage_roles', 'manage_users']:
+            flash('Cannot delete system permissions', 'danger')
+            return redirect(url_for('admin.manage_permissions'))
+        
+        db.session.delete(permission)
+        db.session.commit()
+        
+        flash('Permission deleted successfully', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting permission: {str(e)}', 'danger')
     
-    # Get all permissions grouped by type
-    system_permissions = Permission.query.filter(
-        Permission.code.in_(['manage_system', 'manage_permissions', 'manage_roles', 'manage_users'])
-    ).all()
-    
-    regular_permissions = Permission.query.filter(
-        ~Permission.code.in_(['manage_system', 'manage_permissions', 'manage_roles', 'manage_users'])
-    ).all()
-    
-    return render_template('admin/manage_role_permissions.html',
-                         role=role,
-                         system_permissions=system_permissions,
-                         regular_permissions=regular_permissions)
+    return redirect(url_for('admin.manage_permissions'))
 
 @admin.route('/drawings')
 @login_required

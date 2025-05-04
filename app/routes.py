@@ -25,7 +25,10 @@ def index():
     if rfis_to_cancel:
         db.session.commit()
     
-    rfis = RFI.query.order_by(RFI.date_created.desc()).all()
+    rfis = RFI.query.order_by(
+        RFI.inspection_date.asc().nulls_last(),
+        RFI.inspection_time.asc().nulls_last()
+    ).all()
     return render_template('index.html', rfis=rfis)
 
 @main.route('/rfi/add', methods=['GET', 'POST'])
@@ -120,8 +123,30 @@ def add_rfi():
                 flash('Only Admins and Contractors can submit RFIs.', 'error')
                 return redirect(url_for('main.index'))
             
-            # Debug print form data
-            print("Form data:", form.data)
+            # Check time restrictions
+            settings = RFISettings.query.first()
+            if settings and settings.time_limitations_enabled:
+                current_time = datetime.now().time()
+                if current_time < settings.start_time or current_time > settings.end_time:
+                    flash(f'RFIs can only be submitted between {settings.start_time.strftime("%H:%M")} and {settings.end_time.strftime("%H:%M")}.', 'error')
+                    return redirect(url_for('main.index'))
+            
+            # Validate ITP and Phase relationship
+            if form.itp.data and form.itp_phase.data:
+                phase = ITPPhase.query.get(form.itp_phase.data)
+                if phase and phase.itp_id != form.itp.data:
+                    flash('Selected phase does not belong to the selected ITP.', 'error')
+                    return redirect(url_for('main.add_rfi'))
+            
+            # Validate building and discipline relationship
+            if form.building_code.data and form.discipline_code.data:
+                drawing = Drawing.query.filter_by(
+                    building_code=form.building_code.data,
+                    discipline_code=form.discipline_code.data
+                ).first()
+                if not drawing:
+                    flash('Selected discipline is not available for the selected building.', 'error')
+                    return redirect(url_for('main.add_rfi'))
             
             # Generate RFI number
             rfi_number = RFI.generate_rfi_number(
@@ -149,9 +174,6 @@ def add_rfi():
                 inspection_time=inspection_time
             )
             
-            # Debug print RFI object
-            print("RFI object:", rfi.__dict__)
-            
             # Add to session and commit
             db.session.add(rfi)
             db.session.commit()
@@ -161,12 +183,10 @@ def add_rfi():
             
         except Exception as e:
             db.session.rollback()
-            print("Error creating RFI:", str(e))
             flash(f'Error creating RFI: {str(e)}', 'error')
             return redirect(url_for('main.add_rfi'))
     else:
-        # Debug print form errors
-        print("Form errors:", form.errors)
+        # Handle form errors
         for field, errors in form.errors.items():
             for error in errors:
                 flash(f'{field}: {error}', 'error')

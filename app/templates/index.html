@@ -233,7 +233,7 @@
 <!-- Card View -->
 <div id="cardView">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    {% for rfi in rfis %}
+{% for rfi in rfis %}
         <div class="col">
             <div class="card h-100 shadow-sm rfi-card" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}">
                 <div class="card-content" data-bs-toggle="modal" data-bs-target="#rfiModal" data-rfi-id="{{ rfi.id }}" style="cursor: pointer;">
@@ -250,7 +250,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="card-body">
+    <div class="card-body">
                         <p class="card-text text-truncate">{{ rfi.remarks }}</p>
                         
                         <div class="mb-3">
@@ -294,7 +294,7 @@
                 
                 <div class="card-footer bg-transparent">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">Submitted by {{ rfi.submitted_by }} on {{ rfi.date_created.strftime('%Y-%m-%d %H:%M') }}</small>
+            <small class="text-muted">Submitted by {{ rfi.submitted_by }} on {{ rfi.date_created.strftime('%Y-%m-%d %H:%M') }}</small>
                         <div class="d-flex gap-2">
                             {% if rfi.can_be_accepted_rejected_by(current_user) %}
                                 <form action="{{ url_for('main.accept_rfi', id=rfi.id) }}" method="POST" class="d-inline">
@@ -343,7 +343,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for rfi in rfis|sort(attribute='inspection_date', reverse=false)|sort(attribute='inspection_time', reverse=false) %}
+                {% for rfi in rfis %}
                 <tr class="rfi-row" data-assigned-to="{{ rfi.assigned_to_id }}" data-status="{{ rfi.status }}" data-bs-toggle="modal" data-bs-target="#rfiModal" data-rfi-id="{{ rfi.id }}">
                     <td class="fw-bold text-primary">{{ rfi.rfi_number }}</td>
                     <td>
@@ -406,7 +406,7 @@
                         </div>
                     </td>
                 </tr>
-                {% endfor %}
+{% endfor %}
             </tbody>
         </table>
     </div>
@@ -657,23 +657,60 @@ document.addEventListener('DOMContentLoaded', function() {
     const rfiCards = document.querySelectorAll('.rfi-card');
     const rfiRows = document.querySelectorAll('.rfi-row');
     
-    filterAssignedBtn.addEventListener('click', function() {
-        const userId = {{ current_user.id }};
+    let isAssignedFilterActive = false;
+    let isOpenFilterActive = false;
+    
+    function resetFilters() {
         rfiCards.forEach(card => {
-            card.style.display = card.dataset.assignedTo == userId ? 'block' : 'none';
+            card.style.display = 'block';
         });
         rfiRows.forEach(row => {
-            row.style.display = row.dataset.assignedTo == userId ? 'table-row' : 'none';
+            row.style.display = 'table-row';
         });
+    }
+    
+    function applyFilters() {
+        rfiCards.forEach(card => {
+            const assignedTo = card.dataset.assignedTo;
+            const status = card.dataset.status;
+            let shouldShow = true;
+            
+            if (isAssignedFilterActive && assignedTo != {{ current_user.id }}) {
+                shouldShow = false;
+            }
+            if (isOpenFilterActive && status !== 'Open') {
+                shouldShow = false;
+            }
+            
+            card.style.display = shouldShow ? 'block' : 'none';
+        });
+        
+        rfiRows.forEach(row => {
+            const assignedTo = row.dataset.assignedTo;
+            const status = row.dataset.status;
+            let shouldShow = true;
+            
+            if (isAssignedFilterActive && assignedTo != {{ current_user.id }}) {
+                shouldShow = false;
+            }
+            if (isOpenFilterActive && status !== 'Open') {
+                shouldShow = false;
+            }
+            
+            row.style.display = shouldShow ? 'table-row' : 'none';
+        });
+    }
+    
+    filterAssignedBtn.addEventListener('click', function() {
+        isAssignedFilterActive = !isAssignedFilterActive;
+        this.classList.toggle('active', isAssignedFilterActive);
+        applyFilters();
     });
     
     filterOpenBtn.addEventListener('click', function() {
-        rfiCards.forEach(card => {
-            card.style.display = card.dataset.status === 'Open' ? 'block' : 'none';
-        });
-        rfiRows.forEach(row => {
-            row.style.display = row.dataset.status === 'Open' ? 'table-row' : 'none';
-        });
+        isOpenFilterActive = !isOpenFilterActive;
+        this.classList.toggle('active', isOpenFilterActive);
+        applyFilters();
     });
     
     // Modal functionality

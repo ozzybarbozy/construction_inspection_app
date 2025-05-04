@@ -11,38 +11,43 @@
                     <h4 class="mb-0">✏️ Add New RFI</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('main.add_rfi') }}">
+                    <form method="POST" action="{{ url_for('main.add_rfi') }}" class="needs-validation" novalidate>
                         {{ form.hidden_tag() }}
                         
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label for="building_code" class="form-label">Building Code <span class="text-danger">*</span></label>
-                                    {{ form.building_code(class="form-select", id="building-select") }}
+                                    {{ form.building_code(class="form-select", id="building-select", required=True) }}
+                                    <div class="invalid-feedback">Please select a building code</div>
                                     <small class="text-muted">Select the relevant building code</small>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="discipline_code" class="form-label">Discipline Code <span class="text-danger">*</span></label>
-                                    {{ form.discipline_code(class="form-select", id="discipline-select", disabled=True) }}
+                                    {{ form.discipline_code(class="form-select", id="discipline-select", disabled=True, required=True) }}
+                                    <div class="invalid-feedback">Please select a discipline code</div>
                                     <small class="text-muted">Select the relevant discipline code</small>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="drawing_number" class="form-label">Drawing Number <span class="text-danger">*</span></label>
-                                    {{ form.drawing_number(class="form-select", id="drawing-select", disabled=True) }}
+                                    {{ form.drawing_number(class="form-select", id="drawing-select", disabled=True, required=True) }}
+                                    <div class="invalid-feedback">Please select a drawing number</div>
                                     <small class="text-muted">Select the relevant drawing number</small>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="itp" class="form-label">Inspection and Test Plan <span class="text-danger">*</span></label>
-                                    {{ form.itp(class="form-select", id="itp-select") }}
+                                    {{ form.itp(class="form-select", id="itp-select", required=True) }}
+                                    <div class="invalid-feedback">Please select an Inspection and Test Plan</div>
                                     <small class="text-muted">Select the relevant Inspection and Test Plan</small>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="itp_phase" class="form-label">Inspection Phase <span class="text-danger">*</span></label>
-                                    {{ form.itp_phase(class="form-select", id="phase-select", disabled=True) }}
+                                    {{ form.itp_phase(class="form-select", id="phase-select", disabled=True, required=True) }}
+                                    <div class="invalid-feedback">Please select an inspection phase</div>
                                     <small class="text-muted">Select the specific phase of the ITP</small>
                                 </div>
                                 
@@ -50,14 +55,16 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="inspection_date" class="form-label">Inspection Date <span class="text-danger">*</span></label>
-                                            {{ form.inspection_date(class="form-control", type="date") }}
+                                            {{ form.inspection_date(class="form-control", type="date", required=True, min=(now + timedelta(days=1)).strftime('%Y-%m-%d')) }}
+                                            <div class="invalid-feedback">Please select a valid inspection date</div>
                                             <small class="text-muted">Select a future date for inspection</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="inspection_time" class="form-label">Inspection Time <span class="text-danger">*</span></label>
-                                            {{ form.inspection_time(class="form-select") }}
+                                            {{ form.inspection_time(class="form-select", required=True) }}
+                                            <div class="invalid-feedback">Please select an inspection time</div>
                                             <small class="text-muted">Between 09:00 and 17:30 in 30-minute intervals</small>
                                         </div>
                                     </div>
@@ -65,19 +72,23 @@
                                 
                                 <div class="mb-3">
                                     <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
-                                    {{ form.priority(class="form-select") }}
+                                    {{ form.priority(class="form-select", required=True) }}
+                                    <div class="invalid-feedback">Please select a priority level</div>
                                     <small class="text-muted">Select the priority level of the RFI</small>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="assigned_to" class="form-label">Assigned To <span class="text-danger">*</span></label>
-                                    {{ form.assigned_to(class="form-select") }}
+                                    {{ form.assigned_to(class="form-select", required=True) }}
+                                    <div class="invalid-feedback">Please select an assignee</div>
                                     <small class="text-muted">Assign the RFI to a specific user</small>
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="remarks">Remarks</label>
-                                    {{ form.remarks(class="form-control", rows="4") }}
+                                    {{ form.remarks(class="form-control", rows="4", maxlength="1000") }}
+                                    <div class="invalid-feedback">Remarks cannot exceed 1000 characters</div>
+                                    <small class="text-muted">Enter any additional remarks (optional)</small>
                                 </div>
                             </div>
                         </div>
@@ -103,9 +114,32 @@
     .text-muted {
         font-size: 0.85em;
     }
+    .was-validated .form-control:invalid,
+    .was-validated .form-select:invalid {
+        border-color: #dc3545;
+    }
+    .was-validated .form-control:valid,
+    .was-validated .form-select:valid {
+        border-color: #198754;
+    }
 </style>
 
 <script>
+// Form validation
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
 // Building-Discipline mapping
 const buildingDisciplines = {{ building_disciplines|tojson|safe }};
 const buildingDisciplineDrawings = {{ building_discipline_drawings|tojson|safe }};
@@ -185,6 +219,26 @@ document.getElementById('itp-select').addEventListener('change', function() {
     } else {
         phaseSelect.disabled = true;
         phaseSelect.innerHTML = '<option value="">-- Select Phase --</option>';
+    }
+});
+
+// Date validation
+document.getElementById('inspection_date').addEventListener('change', function() {
+    const selectedDate = new Date(this.value);
+    const today = new Date();
+    if (selectedDate < today) {
+        this.setCustomValidity('Inspection date cannot be in the past');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// Remarks character count
+document.getElementById('remarks').addEventListener('input', function() {
+    if (this.value.length > 1000) {
+        this.setCustomValidity('Remarks cannot exceed 1000 characters');
+    } else {
+        this.setCustomValidity('');
     }
 });
 </script>
